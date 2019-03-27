@@ -1,6 +1,8 @@
 # XRBP - Ruby XRP Library
 
-![logo](https://raw.githubusercontent.com/devnullprod/xrbp/master/logo.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/devnullprod/xrbp/master/logo.png" />
+</p>
 
 
 ---
