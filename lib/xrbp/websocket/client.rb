@@ -109,7 +109,7 @@ module XRBP
       def handshake!
         socket.write handshake.to_s
 
-        until handshaked?
+        until handshaked? || closed? #|| connection.force_quit?
           socket.read_next handshake
           @handshaked = handshake.finished?
         end
