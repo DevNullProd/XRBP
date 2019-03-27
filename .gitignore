@@ -1,0 +1,7 @@
+.vscode/
+coverage/
+*.swp
+.yardoc
+doc/
+.bundle/
+vendor/

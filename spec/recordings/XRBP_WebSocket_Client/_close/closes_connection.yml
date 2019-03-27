@@ -1,0 +1,16 @@
+---
+XRBP::WebSocket::Socket-connect-284ec1b84acdd24efefb11b0d41ae751: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-write-5d224c8d9263902d8e64309d40c3e931: !ruby/object:Camcorder::Recording
+  value: 156
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-fa694fd0827f9925fd132dd3da8b50e4: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-pipe_broken-284ec1b84acdd24efefb11b0d41ae751: !ruby/object:Camcorder::Recording
+  value: false
+  behavior: :return
+XRBP::WebSocket::Socket-close-284ec1b84acdd24efefb11b0d41ae751: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return

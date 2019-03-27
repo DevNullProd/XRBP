@@ -1,0 +1,4 @@
+---
+XRBP::WebSocket::Socket-connect-284ec1b84acdd24efefb11b0d41ae751: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return

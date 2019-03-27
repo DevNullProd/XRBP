@@ -1,0 +1,40 @@
+---
+XRBP::WebSocket::Socket-connect-284ec1b84acdd24efefb11b0d41ae751: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-write-d3c13145f319be9a9b00164e28b41f52: !ruby/object:Camcorder::Recording
+  value: 156
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-ca643c383a393e5a3bd371f642b02623: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-115d0d297aa3ad47802c150c184f9ac0: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-be7cc43b30fc5fdb2dc647b3ff19ad1e: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-6967fda37ffca37a1e602781966f3d85: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-771c7a19f5723d942995dfab0a8a9c44: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-d7291dfd69e48069c89e4019e5da1d87: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-8f265a6662705a64d8bba29d7b19d853: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-faf107182ec0d1fb12fb77084e990d3b: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-write_nonblock-d21f7ed1fba49981ebcc7d2d482afb25: !ruby/object:Camcorder::Recording
+  value: 38
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-64e7ddfcb6352d75c912515303c26bb8: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
+XRBP::WebSocket::Socket-read_next-34d973ce551076592af21b0719b80105: !ruby/object:Camcorder::Recording
+  value: 
+  behavior: :return
