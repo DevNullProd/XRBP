@@ -1,11 +1,9 @@
-# XRBP - Ruby XRP Library
+### XRBP - Ruby XRP Library
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/devnullprod/xrbp/master/logo.png" />
 </p>
 
-
----
 
 XRBP is a rubygem which provides a fault-tolerant interface to the [XRP](https://en.wikipedia.org/wiki/XRP) ledger.
 
@@ -31,7 +29,7 @@ end
 XRBP::Model::Ledger.subscribe(:connection => ws)
 ```
 
-## Supported Features:
+#### Supported Features:
 
 Other data types besides ledgers may be syncronized:
 
@@ -56,7 +54,7 @@ XRPB allows easy access to the following data:
 - Markets with quotes
 - & more (see *examples/* for more use cases)
 
-## Multiple Connections
+#### Multiple Connections
 
 XRBP facilitates fault-tolerant applications by providing customizable strategies which to leverage multiple rippled servers in communications.
 
@@ -90,7 +88,7 @@ puts ws.cmd(XRBP::WebSocket::Cmds::Ledger.new(28327070))
 
 *s1.ripple.com* will be queried for the specified ledger. If not present *s2.ripple.com* will be queried.
 
-## Installation / Documentation
+#### Installation / Documentation
 
 XRPB may be installed with the following command:
 
@@ -100,7 +98,7 @@ $ gem install xrbp
 
 Documentation is available [online](https://www.rubydoc.info/gems/xrbp)
 
-## License
+#### License
 
 Copyright (C) 2019 Dev Null Productions
 
