@@ -9,7 +9,7 @@ XRBP is a rubygem which provides a fault-tolerant interface to the [XRP](https:/
 
 With XRP you can connect to one or more [rippled](https://github.com/ripple/rippled) servers and use them to transparently read and write data to/from the XRP Ledger:
 
-```
+```ruby
 require 'xrbp'
 
 ws = XRBP::WebSocket::Connection.new "wss://s1.ripple.com:443"
@@ -20,7 +20,7 @@ ws.cmd XRBP::WebSocket::Cmds::ServerInfo.new
 
 XRBP provides fully-object-oriented mechanisms to interact with the ledger:
 
-```
+```ruby
 ws.on :ledger do |l|
   puts "Ledger received: "
   puts l
@@ -33,13 +33,13 @@ XRBP::Model::Ledger.subscribe(:connection => ws)
 
 Other data types besides ledgers may be syncronized:
 
-```
+```ruby
 puts XRBP::Model::Account.new("rvYAfWj5gh67oV6fW32ZzP3Aw4Eubs59B").info
 ```
 
 Also data from other sources, such as the [Ripple DataV2 API](https://developers.ripple.com/data-api.html)
 
-```
+```ruby
 connection = XRBP::WebClient::Connection.new
 XRBP::Model::Validator.all(:connection => connection)
                       .each do |v|
@@ -58,7 +58,7 @@ XRPB allows easy access to the following data:
 
 XRBP facilitates fault-tolerant applications by providing customizable strategies which to leverage multiple rippled servers in communications.
 
-```
+```ruby
 ws = XRBP::WebSocket::RoundRobin.new "wss://s1.ripple.com:443",
                                      "wss://s2.ripple.com:443"
 
@@ -73,7 +73,7 @@ In this case the first **ServerInfo** command will be sent to *s1.ripple.com* wh
 
 The following demonstrates prioritized connections:
 
-```
+```ruby
 ws = XRBP::WebSocket::Prioritized.new "wss://s1.ripple.com:443",
                                       "wss://s2.ripple.com:443"
 
@@ -92,7 +92,7 @@ puts ws.cmd(XRBP::WebSocket::Cmds::Ledger.new(28327070))
 
 XRPB may be installed with the following command:
 
-```
+```ruby
 $ gem install xrbp
 ```
 
