@@ -9,11 +9,13 @@ Gem::Specification.new do |spec|
   spec.email         = ["devnullproductions@gmail.com"]
   spec.description   = %q{Ruby XRP Tools}
   spec.summary       = %q{Helper module to read and write data from the XRP Ledger and related resources!}
-  spec.homepage      = "https://devnull.network"
+  spec.homepage      = "https://github.com/DevNullProd/XRBP"
   spec.license       = "MIT"
 
   spec.files         = Dir.glob("examples/**/*.rb") +
-                       Dir.glob("lib/**/*.rb") + ["README.md", "LICENSE.txt"]
+                       Dir.glob("lib/**/*.rb")      +
+                       Dir.glob("spec/**/*.rb")     +
+                       ["README.md", "LICENSE.txt"]
 
   spec.require_paths = ["lib"]
 
