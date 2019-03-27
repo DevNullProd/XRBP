@@ -11,7 +11,8 @@
 #    Camcorder.intercept_constructor XRBP::WebSocket::Socket
 #
 #    # XXX fix random 
-#    allow(SecureRandom).to receive(:random_bytes).with(4).and_return('1234')
+#    allow(handshake.instance_variable_get(:@handler)).to receive(:rand).with(255).and_return(100)
+#    #allow(SecureRandom).to receive(:random_bytes).with(4).and_return('1234')
 #  end
 #
 #  after(:each) do
