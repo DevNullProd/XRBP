@@ -15,7 +15,7 @@ Gem::Specification.new do |spec|
   spec.files         = Dir.glob("examples/**/*.rb") +
                        Dir.glob("lib/**/*.rb")      +
                        Dir.glob("spec/**/*.rb")     +
-                       ["README.md", "LICENSE.txt"]
+                       ["README.md", "LICENSE.txt", ".yardopts"]
 
   spec.require_paths = ["lib"]
 
