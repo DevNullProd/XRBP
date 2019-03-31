@@ -32,7 +32,7 @@ module XRBP
        cls = plugin_namespace.plugins[plg]
        plugins.find { |_plg|
          (plg.is_a?(Class) && _plg.kind_of?(plg)) ||
-         (cls.is_a?(Class) && _plg.class.kind_of?(cls))
+         (cls.is_a?(Class) && _plg.kind_of?(cls))
        }
     end
 
