@@ -6,7 +6,7 @@ module XRBP
     class Account < Base
       extend Base::ClassMethods
 
-     DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
+      DATE_FORMAT = "%Y-%m-%dT%H:%M:%SZ"
 
       attr_accessor :id
 
