@@ -10,4 +10,5 @@ Signal.trap("INT") {
   connection.force_quit!
 }
 
-XRBP::Model::Account.all(:connection => connection)
+XRBP::Model::Account.all(:connection => connection,
+                         :replay     => true)
