@@ -55,6 +55,11 @@ module XRBP
         set_opts(opts)
         FileUtils.mkdir_p(cache) unless File.exist?(cache)
 
+        cached.each { |acct|
+          break if connection.force_quit?
+          connection.emit :account, acct
+        } if opts[:replay]
+
         # start at last marker
         marker = File.exist?("#{cache}/marker") ?
                    File.read("#{cache}/marker") : nil
