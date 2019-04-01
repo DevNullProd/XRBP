@@ -1,3 +1,4 @@
+require 'date'
 require 'fileutils'
 require_relative './parsers/account'
 
@@ -63,11 +64,12 @@ module XRBP
         # start at last marker
         marker = File.exist?("#{cache}/marker") ?
                    File.read("#{cache}/marker") : nil
+        marker = nil if marker.strip.empty?
 
         # load start time, if set
         start = File.exist?("#{cache}/start") ?
-                  File.read("#{cache}/start") :
-           GENESIS_TIME.strftime(DATE_FORMAT)
+          DateTime.parse(File.read("#{cache}/start")) :
+           GENESIS_TIME
 
         # Parse results
         connection.add_plugin :result_parser       unless connection.plugin?(:result_parser)
@@ -79,11 +81,14 @@ module XRBP
         until finished || connection.force_quit?
           # HTTP request
           connection.url = "https://data.ripple.com/v2/accounts/?"\
-                             "start=#{start}&limit=1000&marker=#{marker}"
+                             "start=#{start.strftime(DATE_FORMAT)}&"\
+                             "limit=1000&marker=#{marker}"
           res = connection.perform
+          break if connection.force_quit?
+          break unless res[:accounts] && !res[:accounts].empty?
 
           # Cache data
-          cache_file = "#{cache}/#{marker || "genesis"}"
+          cache_file = "#{cache}/#{marker || start.strftime("%Y%m%d%H%M%S")}"
           File.write(cache_file, res[:accounts].to_json)
 
           # Emit signal
@@ -103,8 +108,13 @@ module XRBP
         end
 
         # Store state for next run
+        # FIXME: results in an overlap, accounts created
+        #        at this inception will also be retrieved
+        #        during next run
         File.write("#{cache}/start",
-                   accounts.last[:inception]) unless marker
+                   accounts.last[:inception]) unless connection.force_quit? ||
+                                                            accounts.empty? ||
+                                                                    marker
 
         accounts
       end
