@@ -17,11 +17,15 @@ module XRBP
 
       # All cached accounts
       def self.cached
-        Dir.glob("#{cache}/*").collect { |f|
+        Dir.glob("#{cache}/*").sort.collect { |f|
           next nil if f == "#{cache}marker" ||
                       f == "#{cache}start"
           begin
             JSON.parse(File.read(f))
+                .collect { |acct|
+                  # convert string keys to symbols
+                  Hash[acct.map { |k,v| [k.intern, v] }]
+                }
           rescue
             nil
           end
