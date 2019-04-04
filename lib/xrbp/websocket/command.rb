@@ -1,5 +1,3 @@
-require 'json'
-
 module XRBP
   module WebSocket
     class Command < Message

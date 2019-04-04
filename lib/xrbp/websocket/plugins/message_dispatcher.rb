@@ -119,6 +119,13 @@ module XRBP
           true
         end
 
+        # FIXME: I *believe* there is issue causing deadlock at process
+        #        termination where subsequent pages in paginated cmds
+        #        are timing out. Since when retrieving messages
+        #        synchronously, the first message block will be used
+        #        to wait for the results and on timeout cancel_message
+        #        will be called with the _latest_ message, the wait
+        #        block never gets unlocked.
         def cancel_message(msg)
           connection.state_mutex.synchronize {
             messages.delete(msg)

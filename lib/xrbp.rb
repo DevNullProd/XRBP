@@ -1,5 +1,6 @@
 require 'event_emitter'
 
+require 'xrbp/json'
 require 'xrbp/common'
 require 'xrbp/terminatable'
 require 'xrbp/plugins'
