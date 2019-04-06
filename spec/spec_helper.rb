@@ -1,7 +1,6 @@
 require 'camcorder'
 require 'camcorder/rspec'
-require 'simplecov'
-SimpleCov.start
+
 Camcorder.config.recordings_dir = 'spec/recordings'
 
 require 'xrbp'

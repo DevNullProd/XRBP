@@ -39,6 +39,10 @@ describe XRBP::WebClient::Connection do
   end
 
   describe '#perform' do
-
+    it "should have the content 'DEV NULL PRODUCTIONS'" do
+      subject.add_plugin :autoretry
+      subject.url = "https://devnull.network"
+      expect(subject.perform).to include('DEV NULL PRODUCTIONS')
+    end
   end
 end
