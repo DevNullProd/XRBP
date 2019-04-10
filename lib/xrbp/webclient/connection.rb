@@ -93,7 +93,12 @@ module XRBP
         end
 
         emit :success, c.body_str
-        parse_result(c.body_str, c)
+        begin
+          parse_result(c.body_str, c)
+        rescue Exception => e
+          emit :error, e
+          return nil
+        end
       end
     end # class Connection
   end # module WebClient
