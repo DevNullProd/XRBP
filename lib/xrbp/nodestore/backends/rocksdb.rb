@@ -18,10 +18,19 @@ module XRBP
         end
 
         def each
-          iterator = rocksdb.new_iterator
+          iterator = @db.new_iterator
           iterator.seek_to_first
 
           while(iterator.valid)
+            type, obj = infer_type(iterator.value)
+
+            if type
+              emit type, iterator.key, obj
+            else
+              emit :unknown, iterator.key,
+                             iterator.value
+            end
+
             yield iterator
             iterator.next
           end

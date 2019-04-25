@@ -30,6 +30,10 @@ Gem::Specification.new do |spec|
   # TODO remove this dep, fallback to net-http if curb isn't avaiable
   spec.add_dependency 'curb', '~> 0.9'
 
+  # for nodstore module
+  # (specific nodestore backends require additional deps)
+  spec.add_dependency "bistro", '~> 2.1'
+
   spec.add_development_dependency 'rspec', '~> 3.8'
   spec.add_development_dependency 'camcorder', '~> 0.0.5'
 end

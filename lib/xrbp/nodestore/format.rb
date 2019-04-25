@@ -21,6 +21,53 @@ module XRBP
         "50525000" => :proposal
       }
 
+      ###
+
+      TYPE_INFER = Bistro.new([
+         'H16', nil, # unused
+           'c', 'node_type',
+          'H8', 'hash_prefix',
+          'H*', 'node'
+      ])
+
+      INNER_NODE = Bistro.new([
+         'H16', nil, # unused
+           'c', 'node_type', # can be one of NODE_TYPES for: 'account_node' or 'tx_node'
+          'H8', 'hp_inner_node',
+         'H64', 'child0',
+         'H64', 'child1',
+         'H64', 'child2',
+         'H64', 'child3',
+         'H64', 'child4',
+         'H64', 'child5',
+         'H64', 'child6',
+         'H64', 'child7',
+         'H64', 'child8',
+         'H64', 'child9',
+         'H64', 'child10',
+         'H64', 'child11',
+         'H64', 'child12',
+         'H64', 'child13',
+         'H64', 'child14',
+         'H64', 'child15',
+         'H64', 'child16',
+         'H64', 'child17',
+         'H64', 'child18',
+         'H64', 'child19',
+         'H64', 'child20',
+         'H64', 'child21',
+         'H64', 'child22',
+         'H64', 'child23',
+         'H64', 'child24',
+         'H64', 'child25',
+         'H64', 'child26',
+         'H64', 'child27',
+         'H64', 'child28',
+         'H64', 'child29',
+         'H64', 'child30',
+         'H64', 'child31'
+      ])
+
       LEDGER = Bistro.new([
          'H16', nil, # unused
            'c', 'nt_ledger',
