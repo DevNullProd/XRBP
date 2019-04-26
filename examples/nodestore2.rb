@@ -21,7 +21,7 @@ db.on :tx do |hash, tx|
 end
 
 db.on :account do |hash, account|
-  puts "Account #{account[15]} - #{account.unpack("H*")}"
+  puts "Account #{account}"
 end
 
 ###

@@ -46,7 +46,7 @@ module XRBP
         [:uint16,  2] => :transaction_type,
         [:uint16,  3] => :signer_weight,
 
-	      # 32-bit unsigned integers (common)
+        # 32-bit unsigned integers (common)
         [:uint32,  2] => :flags,
         [:uint32,  3] => :source_tag,
         [:uint32,  4] => :sequence,
@@ -61,7 +61,7 @@ module XRBP
         [:uint32, 13] => :owner_count,
         [:uint32, 14] => :destination_tag,
 
-	      # 32-bit unsigned integers (uncommon)
+        # 32-bit unsigned integers (uncommon)
         [:uint32, 16] => :high_quality_in,
         [:uint32, 17] => :high_quality_out,
         [:uint32, 18] => :low_quality_in,
@@ -73,7 +73,7 @@ module XRBP
         [:uint32, 24] => :load_fee,
         [:uint32, 25] => :offer_sequence,
 
-        [:uint32, 25] => :first_ledger_sequence,
+        [:uint32, 26] => :first_ledger_sequence,
         [:uint32, 27] => :last_ledger_sequence,
 
         [:uint32, 28] => :transaction_index,
@@ -90,7 +90,7 @@ module XRBP
         [:uint32, 38] => :signer_list_id,
         [:uint32, 39] => :settle_delay,
 
-	      # 64-bit unsigned integers (common)
+        # 64-bit unsigned integers (common)
         [:uint64,  1] => :index_next,
         [:uint64,  2] => :index_previous,
         [:uint64,  3] => :book_node,
@@ -100,10 +100,10 @@ module XRBP
         [:uint64,  7] => :low_node,
         [:uint64,  8] => :high_node,
 
-	      # 128-bit (common)
+        # 128-bit (common)
         [:hash128,  1] => :email_hash,
 
-	      # 256-bit (common)
+        # 256-bit (common)
         [:hash256,  1] => :ledger_hash,
         [:hash256,  2] => :parent_hash,
         [:hash256,  3] => :tx_hash,
@@ -114,7 +114,7 @@ module XRBP
         [:hash256,  8] => :root_index,
         [:hash256,  9] => :account_txn_id,
 
-	      # 256-bit (uncommon)
+        # 256-bit (uncommon)
         [:hash256,  16] => :book_directory,
         [:hash256,  17] => :invoice_id,
         [:hash256,  18] => :nickname,
@@ -124,7 +124,7 @@ module XRBP
         [:hash256,  22] => :channel,
         [:hash256,  24] => :check_id,
 
-	      # currency amount (common)
+        # currency amount (common)
         [:amount,   1] => :amount,
         [:amount,   2] => :balance,
         [:amount,   3] => :limit_amount,
@@ -136,12 +136,12 @@ module XRBP
         [:amount,   9] => :send_max,
         [:amount,  10] => :deliver_min,
 
-	      # currency amount (uncommon)
+        # currency amount (uncommon)
         [:amount,  16] => :minimum_offer,
         [:amount,  17] => :ripple_escrow,
         [:amount,  18] => :delivered_amount,
 
-	      # variable length (common)
+        # variable length (common)
         [:vl,       1] => :public_key,
         [:vl,       2] => :message_key,
         [:vl,       3] => :signing_pub_key,
@@ -157,12 +157,12 @@ module XRBP
         [:vl,      13] => :memo_data,
         [:vl,      14] => :memo_format,
 
-	      # variable length (uncommon)
+        # variable length (uncommon)
         [:vl,      16] => :fulfillment,
         [:vl,      17] => :condition,
         [:vl,      18] => :master_signature,
 
-	      # account
+        # account
         [:account,  1] => :account,
         [:account,  2] => :owner,
         [:account,  3] => :destination,
@@ -170,7 +170,7 @@ module XRBP
         [:account,  7] => :target,
         [:account,  8] => :regular_key,
 
-	      # inner object
+        # inner object
         [:object,  1] => :end_of_object,
         [:object,  2] => :transaction_metadata,
         [:object,  3] => :created_node,
@@ -183,11 +183,11 @@ module XRBP
         [:object, 10] => :memo,
         [:object, 11] => :signer_entry,
 
-	      # inner object (uncommon)
+        # inner object (uncommon)
         [:object, 16] => :signer,
         [:object, 18] => :majority,
 
-	      # array of objects
+        # array of objects
         [:array,   1] => :end_of_array,
         [:array,   2] => :signing_accounts,
         [:array,   3] => :signers,
@@ -198,27 +198,27 @@ module XRBP
         [:array,   8] => :affected_nodes,
         [:array,   9] => :memos,
 
-	      # array of objects (uncommon)
+        # array of objects (uncommon)
         [:array,  16] => :majorities,
 
-	      # 8-bit unsigned integers (common)
+        # 8-bit unsigned integers (common)
         [:uint8,   1] => :close_resolution,
         [:uint8,   2] => :method,
         [:uint8,   3] => :transaction_result,
 
-	      # 8-bit unsigned integers (uncommon)
+        # 8-bit unsigned integers (uncommon)
         [:uint8,  16] => :tick_size,
 
-	      # 160-bit (common)
+        # 160-bit (common)
         [:hash160, 1] => :taker_pays_currency,
         [:hash160, 2] => :taker_pays_issuer,
         [:hash160, 3] => :taker_gets_currency,
         [:hash160, 4] => :taker_gets_issuer,
 
-	      # path set
+        # path set
         [:pathset, 1] => :paths,
 
-	      # vector of 256-bit
+        # vector of 256-bit
         [:vector256, 1] => :indexes,
         [:vector256, 2] => :hashes,
         [:vector256, 3] => :amendments,
@@ -284,6 +284,13 @@ module XRBP
            'N', 'close_time',
            'C', 'close_time_resolution',
            'C', 'close_flags',
+      ])
+
+      CURRENCY_CODE = Bistro.new([
+        'C',   'type_code',
+        'C11', 'reserved1',
+        'C3',  'iso_code',
+        'C5',  'reserved2'
       ])
     end # module Format
   end # module NodeStore

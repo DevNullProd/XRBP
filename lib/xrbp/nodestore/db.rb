@@ -1,4 +1,5 @@
 require 'base58'
+require 'openssl'
 
 module XRBP
   module NodeStore
@@ -49,6 +50,7 @@ module XRBP
 
         if field == 0
           field = encoding.unpack("C").first
+          encoding = encoding[1..-1]
         end
 
         type = Format::SERIALIZED_TYPES[type]
@@ -93,25 +95,27 @@ module XRBP
 
       def parse_fields(fields)
         parsed = {}
-        until fields == ""
+        until fields == "" || fields.nil?
           encoding, fields = parse_encoding(fields)
           return parsed if encoding.first.nil?
 
           e = Format::ENCODINGS[encoding]
-          value, fields = parse_length(fields, encoding)
+          value, fields = parse_field(fields, encoding)
           parsed[e] = value if value
         end
 
         return parsed
       end
 
-      def parse_length(data, encoding)
+      def parse_field(data, encoding)
         length = encoding.first
 
         # TODO verify end_of_array, end_of_object
         #      edge cases below are correct
 
         case length
+        when :uint8
+          return data.unpack("C").first, data[1..-1]
         when :uint16
           return data.unpack("S").first, data[2..-1]
         when :uint32
@@ -120,16 +124,46 @@ module XRBP
           return data.unpack("Q").first, data[8..-1]
         when :hash128
           return data.unpack("H32").first, data[16..-1]
+        when :hash160
+          return data.unpack("H40").first, data[20..-1]
         when :hash256
           return data.unpack("H64").first, data[32..-1]
+
+        when :amount
+          amount = data[0..7].unpack("Q>").first
+             xrp = amount < 0x8000000000000000
+          return  (amount & 0x3FFFFFFFFFFFFFFF), data[8..-1] if xrp
+
+          sign = (amount & 0x4000000000000000) >> 62 # 0 = neg / 1 = pos
+           exp = (amount & 0x3FC0000000000000) >> 54
+          mant = (amount & 0x003FFFFFFFFFFFFF)
+
+          data = data[8..-1]
+          currency = Format::CURRENCY_CODE.decode(data)
+
+          data = data[Format::CURRENCY_CODE.size..-1]
+          issuer, data = parse_account(data, 20)
+
+          # TODO calculate value
+          return { :sign => sign,
+                    :exp => exp,
+               :mantissa => mant,
+               :currency => currency,
+                 :issuer => issuer }, data
+
+        when :vl
+          vl, offset = parse_vl(data)
+          return data[offset..vl+offset-1], data[vl+offset..-1]
+
         when :account
-          return Base58.binary_to_base58(data[0..19], :ripple), data[20..-1]
+          return parse_account(data)
+
         when :array
           e = Format::ENCODINGS[encoding]
-          return if e == :end_of_array
+          return nil, data if e == :end_of_array
 
           array = []
-          until data == ""
+          until data == "" || data.nil?
             aencoding, data = parse_encoding(data)
             break if aencoding.first.nil?
 
@@ -137,22 +171,66 @@ module XRBP
             break if e == :end_of_array
             break if e == :end_of_object
 
-            value, fields = parse_length(fields, encoding)
+            value, data = parse_field(data, aencoding)
             array << value if value
           end
 
           return array, data
 
         when :object
-          e = Format::ENCODINGS[aencoding]
-          return if e == :end_of_object
-          # ... prev, new, final fields
-          #     modified, deleted, created nodes
-          #     signerentry, majority, memo
+          e = Format::ENCODINGS[encoding]
+          case e
+          when :end_of_object
+            return nil, data
+
+          when :signer_entry, :majority, :memo
+            # TODO instantiate corresponding classes
+            return parse_fields(data)
+          end
+
+          # TODO prev, new, final fields
+          #      modified, deleted, created nodes
+
+        when :vector256
+          vl, offset = parse_vl(data)
+          return data[offset..vl+offset-1], data[vl+offset..-1]
+
         end
 
         # TODO: implement all encoding types
+        #       (pathset)
         raise
+      end
+
+      def parse_vl(data)
+        first = data.unpack("C").first.to_i
+        return first, 1 if first <= 192
+
+        data = data[1..-1]
+        second = data.unpack("C").first.to_i
+        if first <= 240
+          return (193+(first-193)*256+second), 2
+
+        elsif first <= 254
+          data = data[1..-1]
+          third = data.unpack("C").first.to_i
+          return (12481 + (first-241)*65536 + second*256 + third), 3
+        end
+
+        raise
+      end
+
+      def parse_account(data, vl=nil)
+        unless vl
+          vl,offset = parse_vl(data)
+          data = data[offset..-1]
+        end
+
+          acct = "\0" + data[0..vl-1]
+        sha256 = OpenSSL::Digest::SHA256.new
+        digest = sha256.digest(sha256.digest(acct))[0..3]
+        acct  += digest
+        return Base58.binary_to_base58(acct, :ripple), data[vl..-1]
       end
 
       def parse_tx(tx)
@@ -162,7 +240,7 @@ module XRBP
 
       def parse_inner_node(node)
         # verify parsability
-                obj = Format::TYPE_INFER.decode(ledger_entry)
+                obj = Format::TYPE_INFER.decode(node)
         hash_prefix = Format::HASH_PREFIXES[obj["hash_prefix"].upcase]
         raise unless hash_prefix == :inner_node
 
