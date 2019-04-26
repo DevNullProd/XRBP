@@ -8,6 +8,7 @@ db = XRBP::NodeStore::Backends::RocksDB.new "/var/lib/rippled/rocksdb/rippledb.0
 #ledger = [ledger].pack("H*")
 #puts db.ledger(ledger)
 
-account = "0001bf7468341666f1f47a95e0f4d88e68b5fc7d20d77437cb22954fbbfe6127"
+#account = "0001bf7468341666f1f47a95e0f4d88e68b5fc7d20d77437cb22954fbbfe6127"
+account = "02c46b3a4130d0a329c47f0da61b829aa5d1ae53c5817e475bcd794e5107be44"
 account = [account].pack("H*")
-puts db.account(account).unpack("H*")
+puts db.account(account)

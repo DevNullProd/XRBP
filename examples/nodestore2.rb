@@ -13,7 +13,7 @@ db.on :inner_node do |hash, node|
 end
 
 db.on :ledger do |hash, ledger|
-  puts "Ledger #{ledger['index']}"
+  #puts "Ledger #{ledger['index']}"
 end
 
 db.on :tx do |hash, tx|
@@ -21,7 +21,7 @@ db.on :tx do |hash, tx|
 end
 
 db.on :account do |hash, account|
-  #puts "Account #{hash} #{account}"
+  puts "Account #{account[15]} - #{account.unpack("H*")}"
 end
 
 ###
