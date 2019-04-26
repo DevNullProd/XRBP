@@ -110,9 +110,6 @@ module XRBP
       def parse_field(data, encoding)
         length = encoding.first
 
-        # TODO verify end_of_array, end_of_object
-        #      edge cases below are correct
-
         case length
         when :uint8
           return data.unpack("C").first, data[1..-1]
@@ -197,8 +194,7 @@ module XRBP
 
         end
 
-        # TODO: implement all encoding types
-        #       (pathset)
+        # TODO: implement pathset encoding type
         raise
       end
 
