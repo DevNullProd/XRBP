@@ -179,7 +179,6 @@ module XRBP
 
         when :object
           e = Format::ENCODINGS[encoding]
-puts e
           case e
           when :end_of_object
             return nil, data
@@ -227,7 +226,6 @@ puts e
 
         end
 
-puts encoding
         raise
       end
 
