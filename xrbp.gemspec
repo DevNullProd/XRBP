@@ -32,7 +32,7 @@ Gem::Specification.new do |spec|
 
   # for nodstore module
   # (specific nodestore backends require additional deps)
-  spec.add_dependency "bistro", '~> 2.1'
+  spec.add_dependency "bistro", '~> 2.2'
 
   spec.add_development_dependency 'rspec', '~> 3.8'
   spec.add_development_dependency 'camcorder', '~> 0.0.5'
