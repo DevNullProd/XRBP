@@ -17,11 +17,11 @@ db.on :ledger do |hash, ledger|
 end
 
 db.on :tx do |hash, tx|
-  #puts "Tx #{hash} #{tx}"
+  puts "Tx #{tx}"
 end
 
 db.on :account do |hash, account|
-  puts "Account #{account}"
+  #puts "Account #{account}"
 end
 
 ###

@@ -93,6 +93,8 @@ module XRBP
           :fields => fields }
       end
 
+      ###
+
       def parse_fields(fields)
         parsed = {}
         until fields == "" || fields.nil?
@@ -101,7 +103,8 @@ module XRBP
 
           e = Format::ENCODINGS[encoding]
           value, fields = parse_field(fields, encoding)
-          parsed[e] = value if value
+          break unless value
+          parsed[e] = value
         end
 
         return parsed
@@ -166,10 +169,10 @@ module XRBP
 
             e = Format::ENCODINGS[aencoding]
             break if e == :end_of_array
-            break if e == :end_of_object
 
             value, data = parse_field(data, aencoding)
-            array << value if value
+            break unless value
+            array << value
           end
 
           return array, data
@@ -180,13 +183,42 @@ module XRBP
           when :end_of_object
             return nil, data
 
-          when :signer_entry, :majority, :memo
+          when :signer, :signer_entry, :majority, :memo
             # TODO instantiate corresponding classes
             return parse_fields(data)
+
+          #else:
           end
 
           # TODO prev, new, final fields
           #      modified, deleted, created nodes
+
+        when :pathset
+          pathset = []
+          until data == "" || data.nil?
+            segment = data.unpack("C").first
+            data = data[1..-1]
+            return pathset, data if segment == 0x00 # end of path
+
+            if segment == 0xFF # path boundry
+              pathset << []
+            else
+              if segment & 0x01 # path account
+                issuer, data = parse_account(data, 20)
+              end
+
+              if segment & 0x02 # path currency
+                currency = Format::CURRENCY_CODE.decode(data)
+                data = data[Format::CURRENCY_CODE.size..-1]
+              end
+
+              if segment & 0x03 # path issuer
+                issuer, data = parse_account(data, 20)
+              end
+            end
+          end
+
+          return pathset, data
 
         when :vector256
           vl, offset = parse_vl(data)
@@ -194,22 +226,22 @@ module XRBP
 
         end
 
-        # TODO: implement pathset encoding type
         raise
       end
 
       def parse_vl(data)
-        first = data.unpack("C").first.to_i
+         data = data.bytes
+        first = data.first.to_i
         return first, 1 if first <= 192
 
         data = data[1..-1]
-        second = data.unpack("C").first.to_i
+        second = data.first.to_i
         if first <= 240
           return (193+(first-193)*256+second), 2
 
         elsif first <= 254
           data = data[1..-1]
-          third = data.unpack("C").first.to_i
+          third = data.first.to_i
           return (12481 + (first-241)*65536 + second*256 + third), 3
         end
 
@@ -229,9 +261,31 @@ module XRBP
         return Base58.binary_to_base58(acct, :ripple), data[vl..-1]
       end
 
+      ###
+
       def parse_tx(tx)
-        # TODO
-        tx
+                obj = Format::TYPE_INFER.decode(tx)
+          node_type = Format::NODE_TYPES[obj["node_type"]]
+        hash_prefix = Format::HASH_PREFIXES[obj["hash_prefix"].upcase]
+        raise unless   node_type == :tx_node &&
+                     hash_prefix == :tx_node
+
+        # discard node type, and hash prefix
+        tx = tx[13..-1]
+
+        # get node length
+        vl, offset = parse_vl(tx)
+        node, _tx = tx.bytes[offset..vl+offset-1], tx.bytes[vl+offset..-1]
+        node = parse_fields(node.pack("C*"))
+
+        # get meta length
+        vl, offset = parse_vl(_tx.pack("C*"))
+        meta, index = _tx[offset..vl+offset-1], _tx[vl+offset..-1]
+        # meta = parse_fields(meta.pack("C*")) # TODO
+
+        {  :node =>  node,
+           :meta =>  meta.pack("C*"),
+          :index => index.pack("C*").unpack("H*").first.upcase }
       end
 
       def parse_inner_node(node)
