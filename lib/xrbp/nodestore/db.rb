@@ -179,19 +179,20 @@ module XRBP
 
         when :object
           e = Format::ENCODINGS[encoding]
+puts e
           case e
           when :end_of_object
             return nil, data
 
-          when :signer, :signer_entry, :majority, :memo
+          when :signer,   :signer_entry,
+               :majority, :memo,
+               :modified_node, :created_node, :deleted_node,
+               :previous_fields, :final_fields, :new_fields
             # TODO instantiate corresponding classes
             return parse_fields(data)
 
           #else:
           end
-
-          # TODO prev, new, final fields
-          #      modified, deleted, created nodes
 
         when :pathset
           pathset = []
@@ -226,6 +227,7 @@ module XRBP
 
         end
 
+puts encoding
         raise
       end
 
@@ -281,10 +283,10 @@ module XRBP
         # get meta length
         vl, offset = parse_vl(_tx.pack("C*"))
         meta, index = _tx[offset..vl+offset-1], _tx[vl+offset..-1]
-        # meta = parse_fields(meta.pack("C*")) # TODO
+        meta = parse_fields(meta.pack("C*"))
 
         {  :node =>  node,
-           :meta =>  meta.pack("C*"),
+           :meta =>  meta,
           :index => index.pack("C*").unpack("H*").first.upcase }
       end
 
