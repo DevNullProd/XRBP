@@ -23,6 +23,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency "event_emitter", '~> 0.2'
   spec.add_dependency "concurrent-ruby", '~> 1.0'
 
+  # XXX: upstream features needed for some functionality:
+  #      https://github.com/ruby/openssl/pull/250
+  spec.add_dependency "openssl", '~> 2.1'
+
   # for websocket module
   spec.add_dependency "websocket", '~> 1.2'
 
@@ -33,6 +37,9 @@ Gem::Specification.new do |spec|
   # for nodstore module
   # (specific nodestore backends require additional deps)
   spec.add_dependency "bistro", '~> 2.2'
+
+  # for various modules (nodestore, crypto)
+  spec.add_dependency 'base58', '~> 0.2'
 
   spec.add_development_dependency 'rspec', '~> 3.8'
   spec.add_development_dependency 'camcorder', '~> 0.0.5'
