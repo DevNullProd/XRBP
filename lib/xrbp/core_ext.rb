@@ -22,3 +22,11 @@ class Queue
     end
   end
 end
+
+# @private
+class String
+  # return bignum corresponding to string
+  def to_bn
+    bytes.inject(0) { |bn, b| (bn << 8) | b }
+  end
+end

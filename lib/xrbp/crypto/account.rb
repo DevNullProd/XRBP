@@ -22,14 +22,9 @@ module XRBP
         key = {:public => pub}
       end
 
-      # trim key to 33 bytes
-      pub = pub[0..65]
-      bpub = [pub].pack("H*")
-      raise unless bpub.size == 33
-
           sha256 = OpenSSL::Digest::SHA256.new
        ripemd160 = OpenSSL::Digest::RIPEMD160.new
-      account_id = [Key::TOKEN_TYPES[:account_id]].pack("C") + ripemd160.digest(sha256.digest(bpub))
+      account_id = [Key::TOKEN_TYPES[:account_id]].pack("C") + ripemd160.digest(sha256.digest([pub].pack("H*")))
           chksum = sha256.digest(sha256.digest(account_id))[0..3]
 
       { :account => Base58.binary_to_base58(account_id  + chksum, :ripple) }.merge(key)
