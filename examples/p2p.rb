@@ -1,5 +1,3 @@
-gem 'openssl', '2.1.3'
-
 $: << File.expand_path('../../lib', __FILE__)
 require 'xrbp'
 
