@@ -13,7 +13,7 @@ require 'openssl'
 module XRBP
   module Overlay
     class Handshake
-      attr_reader :connection
+      attr_reader :connection, :response
 
       def initialize(connection)
         @connection = connection
@@ -55,6 +55,23 @@ Connect-As: Leaf, Peer\r
 Public-Key: #{node[:node]}\r
 Session-Signature: #{shared}\r
 \r\n"
+      end
+
+      ###
+
+      def execute!
+        socket.puts(data)
+
+        @response = ""
+        until connection.closed? # || connection.force_quit?
+          read_sockets, _, _ = IO.select([socket], nil, nil, 0.1)
+
+          if read_sockets && read_sockets[0]
+            out = socket.read_nonblock(1024)
+            @response += out.strip
+            break if out[-4..-1] == "\r\n\r\n"
+          end
+        end
       end
     end # class Handshake
   end # module WebClient

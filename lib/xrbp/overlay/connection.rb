@@ -14,6 +14,10 @@ module XRBP
         @socket ||= TCPSocket.open(host, port)
       end
 
+      def closed?
+        socket.closed?
+      end
+
       def ssl_socket
         @ssl_socket ||= begin
           ssl_context = OpenSSL::SSL::SSLContext.new
@@ -35,8 +39,7 @@ module XRBP
 
       def connect
         ssl_socket.connect
-        ssl_socket.puts(handshake.data)
-        # ... wait for & handle response
+        handshake.execute!
       end
 
       def close
@@ -49,6 +52,34 @@ module XRBP
 
       def read
         ssl_socket.gets
+      end
+
+      def read_frames
+        frame = nil
+        remaining = nil
+        while !closed?
+          read_sockets, _, _ = IO.select([ssl_socket], nil, nil, 0.1)
+          if read_sockets && read_sockets[0]
+            out = ssl_socket.read_nonblock(1024)
+
+            if frame.nil?
+              type = Frame::TYPE_INFER.decode(out)
+              frame = Frame.new type["type"], type["size"]
+              out = out[Frame::TYPE_INFER.size..-1]
+            end
+
+            _, remaining = frame << out
+            if frame.complete?
+              # TODO extra specific protobuf data structure
+              #      from data, set on frame
+              yield frame
+              frame = nil
+            end
+
+            # XXX: doesn't feel right to just
+            #      discard remaining, look into this
+          end
+        end
       end
     end # class Connection
   end # module WebClient
