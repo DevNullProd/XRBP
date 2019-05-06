@@ -41,6 +41,9 @@ Gem::Specification.new do |spec|
   # for various modules (nodestore, crypto)
   spec.add_dependency 'base58', '~> 0.2'
 
+  # for overlay
+  spec.add_dependency 'google-protobuf', '~> 3.6'
+
   spec.add_development_dependency 'rspec', '~> 3.8'
   spec.add_development_dependency 'camcorder', '~> 0.0.5'
 end
