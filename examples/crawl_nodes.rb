@@ -25,7 +25,7 @@ connection.on :peers do |node, peers|
 end
 
 connection.on :peer do |node, peer|
-  puts " #{peer.url}"
+  print " #{peer.url.ljust(40)} - Ledgers: #{peer.ledgers}\n"
 end
 
 XRBP::Model::Node.crawl("wss://s1.ripple.com:51235",

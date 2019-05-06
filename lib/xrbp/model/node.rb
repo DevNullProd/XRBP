@@ -11,7 +11,7 @@ module XRBP
       DEFAULT_CRAWL_PORT = 51235
 
       attr_accessor :ip, :port
-      attr_accessor :addr, :version, :uptime, :type
+      attr_accessor :addr, :version, :uptime, :type, :ledgers
 
       # Return unique node id
       def id
@@ -71,6 +71,7 @@ module XRBP
         n.version = p["version"].split("-").last
         n.uptime  = p["uptime"]
         n.type    = p["type"]
+        n.ledgers = p["complete_ledgers"]
 
         n
       end
