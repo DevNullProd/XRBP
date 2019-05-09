@@ -66,7 +66,7 @@ module XRBP
         n = new
 
         n.addr    = p["public_key"]
-        n.ip      = p["ip"]
+        n.ip      = p["ip"]&.gsub("::ffff:", "")
         n.port    = p["port"] || DEFAULT_CRAWL_PORT
         n.version = p["version"].split("-").last
         n.uptime  = p["uptime"]

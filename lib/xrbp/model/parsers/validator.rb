@@ -16,7 +16,9 @@ module XRBP
             next nil unless id
 
             {:id     => id,
-             :domain => v["domain"]}
+             :domain => v["domain"],
+             :chain  => v["chain"],
+             :unl    => v["unl"]}
           }.compact
         end
       end # class ValidatorParser
