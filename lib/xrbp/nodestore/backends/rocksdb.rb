@@ -1,3 +1,4 @@
+# requires rocksdb-ruby gem
 require "rocksdb"
 
 module XRBP
