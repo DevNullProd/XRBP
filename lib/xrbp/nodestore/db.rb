@@ -260,6 +260,7 @@ module XRBP
         sha256 = OpenSSL::Digest::SHA256.new
         digest = sha256.digest(sha256.digest(acct))[0..3]
         acct  += digest
+        acct.force_encoding(Encoding::BINARY) # required for Base58 gem
         return Base58.binary_to_base58(acct, :ripple), data[vl..-1]
       end
 
