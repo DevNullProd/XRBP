@@ -1,8 +1,13 @@
 $: << File.expand_path('../../lib', __FILE__)
 require 'xrbp'
-require 'xrbp/nodestore/backends/rocksdb'
 
+# for rocksdb:
+require 'xrbp/nodestore/backends/rocksdb'
 db = XRBP::NodeStore::Backends::RocksDB.new "/var/lib/rippled/rocksdb/rippledb.0899"
+
+# for nudb:
+#require 'xrbp/nodestore/backends/nudb'
+#db = XRBP::NodeStore::Backends::NuDB.new "/var/lib/rippled/nudb/"
 
 #ledger = "B506ADD630CB707044B4BFFCD943C1395966692A13DD618E5BD0978A006B43BD"
 #ledger = [ledger].pack("H*")

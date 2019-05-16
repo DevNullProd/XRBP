@@ -7,6 +7,8 @@ module XRBP
       include Enumerable
       include EventEmitter
 
+      # TODO return nil if db lookup not found
+
       def ledger(hash)
         parse_ledger(self[hash])
       end

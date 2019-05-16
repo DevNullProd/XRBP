@@ -3,6 +3,13 @@ require "bistro"
 module XRBP
   module NodeStore
     module Format
+      NODE_OBJ_TYPES = {
+        :unknown          => 0,
+        :ledger           => 1,
+        :account_node     => 2,
+        :transaction_node => 3
+      }
+
       NODE_TYPES = {
         1 => :ledger,
         2 => :tx,
@@ -15,6 +22,7 @@ module XRBP
         "534E4400" => :tx_node,
         "4D4C4E00" => :leaf_node,
         "4D494E00" => :inner_node,
+        "494E5200" => :inner_node_v2,
         "4C575200" => :ledger_master,
         "53545800" => :tx_sign,
         "56414C00" => :validation,

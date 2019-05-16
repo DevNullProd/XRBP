@@ -1,3 +1,5 @@
+require 'ostruct'
+
 # requires rrudb gem
 require "rudb"
 
@@ -9,26 +11,14 @@ module XRBP
       class NuDB < DB
         include Decompressor
 
-        KEY_SIZE = ?
+        attr_reader :path
 
-        def self.create!(path)
-          dat = File.join(path, "nudb.dat")
-          key = File.join(path, "nudb.key")
-          log = File.join(path, "nudb.log")
-
-          RuDB::create :dat_path    => dat,
-                       :key_path    => key,
-                       :log_path    => log,
-                       :app_num     =>   1,
-                       :salt        => RuDB::make_salt,
-                       :key_size    => KEY_SIZE,
-                       :block_size  => RuDB::block_size(key),
-                       :load_factor => 0.5
-        end
+        KEY_SIZE = 32
 
         def initialize(path)
-          self.class.create!(path)
-          open(path)
+          @path = path
+          create!
+          open
         end
 
         def [](key)
@@ -57,7 +47,24 @@ module XRBP
 
         private
 
-        def open(path)
+        def create!
+          dat = File.join(path, "nudb.dat")
+          key = File.join(path, "nudb.key")
+          log = File.join(path, "nudb.log")
+
+          RuDB::create :dat_path    => dat,
+                       :key_path    => key,
+                       :log_path    => log,
+                       :app_num     =>   1,
+                       :salt        => RuDB::make_salt,
+                       :key_size    => KEY_SIZE,
+                       :block_size  => RuDB::block_size(key),
+                       :load_factor => 0.5
+        end
+
+
+
+        def open
           dat = File.join(path, "nudb.dat")
           key = File.join(path, "nudb.key")
           log = File.join(path, "nudb.log")
