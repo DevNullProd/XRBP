@@ -40,9 +40,9 @@ module XRBP
       end
 
       def parse_encoding(encoding)
-            enc = encoding.unpack("C").first
-           type = enc >> 4
-          field = enc  & 0xF
+             enc = encoding.unpack("C").first
+            type = enc >> 4
+           field = enc  & 0xF
         encoding = encoding[1..-1]
 
         if type == 0
@@ -130,98 +130,20 @@ module XRBP
           return data.unpack("H40").first, data[20..-1]
         when :hash256
           return data.unpack("H64").first, data[32..-1]
-
         when :amount
-          amount = data[0..7].unpack("Q>").first
-             xrp = amount < 0x8000000000000000
-          return  (amount & 0x3FFFFFFFFFFFFFFF), data[8..-1] if xrp
-
-          sign = (amount & 0x4000000000000000) >> 62 # 0 = neg / 1 = pos
-           exp = (amount & 0x3FC0000000000000) >> 54
-          mant = (amount & 0x003FFFFFFFFFFFFF)
-
-          data = data[8..-1]
-          currency = Format::CURRENCY_CODE.decode(data)
-
-          data = data[Format::CURRENCY_CODE.size..-1]
-          issuer, data = parse_account(data, 20)
-
-          # TODO calculate value
-          return { :sign => sign,
-                    :exp => exp,
-               :mantissa => mant,
-               :currency => currency,
-                 :issuer => issuer }, data
-
+          return parse_amount(data)
         when :vl
           vl, offset = parse_vl(data)
           return data[offset..vl+offset-1], data[vl+offset..-1]
 
         when :account
           return parse_account(data)
-
         when :array
-          e = Format::ENCODINGS[encoding]
-          return nil, data if e == :end_of_array
-
-          array = []
-          until data == "" || data.nil?
-            aencoding, data = parse_encoding(data)
-            break if aencoding.first.nil?
-
-            e = Format::ENCODINGS[aencoding]
-            break if e == :end_of_array
-
-            value, data = parse_field(data, aencoding)
-            break unless value
-            array << value
-          end
-
-          return array, data
-
+          return parse_array(data, encoding)
         when :object
-          e = Format::ENCODINGS[encoding]
-          case e
-          when :end_of_object
-            return nil, data
-
-          when :signer,   :signer_entry,
-               :majority, :memo,
-               :modified_node, :created_node, :deleted_node,
-               :previous_fields, :final_fields, :new_fields
-            # TODO instantiate corresponding classes
-            return parse_fields(data)
-
-          #else:
-          end
-
+          return parse_object(data, encoding)
         when :pathset
-          pathset = []
-          until data == "" || data.nil?
-            segment = data.unpack("C").first
-            data = data[1..-1]
-            return pathset, data if segment == 0x00 # end of path
-
-            if segment == 0xFF # path boundry
-              pathset << []
-            else
-              if segment & 0x01 # path account
-                issuer, data = parse_account(data, 20)
-              end
-
-              if segment & 0x02 # path currency
-                currency = Format::CURRENCY_CODE.decode(data)
-                data = data[Format::CURRENCY_CODE.size..-1]
-              end
-
-              if segment & 0x03 # path issuer
-                issuer, data = parse_account(data, 20)
-              end
-            end
-          end
-
-          return pathset, data
-
+          return parse_pathset(data)
         when :vector256
           vl, offset = parse_vl(data)
           return data[offset..vl+offset-1], data[vl+offset..-1]
@@ -250,6 +172,29 @@ module XRBP
         raise
       end
 
+      def parse_amount(data)
+        amount = data[0..7].unpack("Q>").first
+           xrp = amount < 0x8000000000000000
+        return  (amount & 0x3FFFFFFFFFFFFFFF), data[8..-1] if xrp
+
+        sign = (amount & 0x4000000000000000) >> 62 # 0 = neg / 1 = pos
+         exp = (amount & 0x3FC0000000000000) >> 54
+        mant = (amount & 0x003FFFFFFFFFFFFF)
+
+        data = data[8..-1]
+        currency = Format::CURRENCY_CODE.decode(data)
+
+        data = data[Format::CURRENCY_CODE.size..-1]
+        issuer, data = parse_account(data, 20)
+
+        # TODO calculate value
+        return { :sign => sign,
+                  :exp => exp,
+             :mantissa => mant,
+             :currency => currency,
+               :issuer => issuer }, data
+      end
+
       def parse_account(data, vl=nil)
         unless vl
           vl,offset = parse_vl(data)
@@ -262,6 +207,73 @@ module XRBP
         acct  += digest
         acct.force_encoding(Encoding::BINARY) # required for Base58 gem
         return Base58.binary_to_base58(acct, :ripple), data[vl..-1]
+      end
+
+      def parse_array(data, encoding)
+        e = Format::ENCODINGS[encoding]
+        return nil, data if e == :end_of_array
+
+        array = []
+        until data == "" || data.nil?
+          aencoding, data = parse_encoding(data)
+          break if aencoding.first.nil?
+
+          e = Format::ENCODINGS[aencoding]
+          break if e == :end_of_array
+
+          value, data = parse_field(data, aencoding)
+          break unless value
+          array << value
+        end
+
+        return array, data
+      end
+
+      def parse_object(data, encoding)
+        e = Format::ENCODINGS[encoding]
+        case e
+        when :end_of_object
+          return nil, data
+
+        when :signer,   :signer_entry,
+             :majority, :memo,
+             :modified_node, :created_node, :deleted_node,
+             :previous_fields, :final_fields, :new_fields
+          # TODO instantiate corresponding classes
+          return parse_fields(data)
+
+        #else:
+        end
+
+        raise "unknown object type"
+      end
+
+      def parse_pathset(data)
+        pathset = []
+        until data == "" || data.nil?
+          segment = data.unpack("C").first
+          data = data[1..-1]
+          return pathset, data if segment == 0x00 # end of path
+
+          if segment == 0xFF # path boundry
+            pathset << []
+          else
+            if segment & 0x01 # path account
+              issuer, data = parse_account(data, 20)
+            end
+
+            if segment & 0x02 # path currency
+              currency = Format::CURRENCY_CODE.decode(data)
+              data = data[Format::CURRENCY_CODE.size..-1]
+            end
+
+            if segment & 0x03 # path issuer
+              issuer, data = parse_account(data, 20)
+            end
+          end
+        end
+
+        return pathset, data
       end
 
       ###
