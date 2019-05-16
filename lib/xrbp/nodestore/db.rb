@@ -258,16 +258,16 @@ module XRBP
           if segment == 0xFF # path boundry
             pathset << []
           else
-            if segment & 0x01 # path account
+            if (segment & 0x01) != 0 # path account
               issuer, data = parse_account(data, 20)
             end
 
-            if segment & 0x02 # path currency
+            if (segment & 0x02) != 0 # path currency
               currency = Format::CURRENCY_CODE.decode(data)
               data = data[Format::CURRENCY_CODE.size..-1]
             end
 
-            if segment & 0x03 # path issuer
+            if (segment & 0x03) != 0 # path issuer
               issuer, data = parse_account(data, 20)
             end
           end
