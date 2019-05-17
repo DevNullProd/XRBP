@@ -99,7 +99,7 @@ module XRBP
 
       def parse_fields(fields)
         parsed = {}
-        until fields == "" || fields.nil?
+        until fields == "" || fields == "\0" || fields.nil?
           encoding, fields = parse_encoding(fields)
           return parsed if encoding.first.nil?
 
@@ -249,7 +249,7 @@ module XRBP
       end
 
       def parse_pathset(data)
-        pathset = []
+        pathset = [[]]
         until data == "" || data.nil?
           segment = data.unpack("C").first
           data = data[1..-1]
@@ -258,18 +258,27 @@ module XRBP
           if segment == 0xFF # path boundry
             pathset << []
           else
+            account, current, issuer = nil
+
+            path = {}
+
             if (segment & 0x01) != 0 # path account
-              issuer, data = parse_account(data, 20)
+              account, data = parse_account(data, 20)
+              path[:account] = account
             end
 
-            if (segment & 0x02) != 0 # path currency
+            if (segment & 0x10) != 0 # path currency
               currency = Format::CURRENCY_CODE.decode(data)
               data = data[Format::CURRENCY_CODE.size..-1]
+              path[:currency] = currency
             end
 
-            if (segment & 0x03) != 0 # path issuer
+            if (segment & 0x20) != 0 # path issuer
               issuer, data = parse_account(data, 20)
+              path[:issuer] = issuer
             end
+
+            pathset.last << path
           end
         end
 
