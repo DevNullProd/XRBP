@@ -5,6 +5,8 @@ module XRBP
   end # module Crypto
 end # module XRBP
 
+require 'xrbp/crypto/seed'
 require 'xrbp/crypto/key'
 require 'xrbp/crypto/account'
 require 'xrbp/crypto/node'
+require 'xrbp/crypto/validator'

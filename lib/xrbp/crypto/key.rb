@@ -99,6 +99,6 @@ module XRBP
       # @private (for now)
       def self.verify(key, data, expected)
       end
-    end
+    end # module Key
   end # module Crypto
 end # module XRBP

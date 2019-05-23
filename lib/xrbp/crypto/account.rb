@@ -33,5 +33,23 @@ module XRBP
 
       { :account => Base58.binary_to_base58(account_id  + chksum, :ripple) }.merge(key)
     end
+
+    def self.parse_account(account)
+      bin = Base58.base58_to_binary(account, :ripple)
+      typ = bin[0]
+      chk = bin[-4..-1]
+      bin = bin[1...-4]
+
+      return nil unless typ.unpack("C*").first == Key::TOKEN_TYPES[:account_id]
+
+      sha256 = OpenSSL::Digest::SHA256.new
+      return nil unless sha256.digest(sha256.digest(typ + bin))[0..3] == chk
+
+      return bin
+    end
+
+    def self.account?(account)
+      parse_account(account) != nil
+    end
   end # module Crypto
 end # module XRBP
