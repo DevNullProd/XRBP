@@ -42,6 +42,7 @@ module XRBP
           #      the public key is not able to verify the signature
           #      generated from the private key set in this way.
           # TODO: Investigate
+          #      Also investigate using seed (and in ed25519 below)
            #pk = priv
           #spk.set_raw_privkey [pk].pack("H*")
 
