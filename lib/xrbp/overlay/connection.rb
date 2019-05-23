@@ -1,5 +1,23 @@
 module XRBP
+  # The Overlay is the Peer-to-Peer (P2P) network established
+  # by rippled node instances to each other. It is what is used
+  # to relay transactions and network state as the consensus
+  # process is executed.
+  #
+  # This module facilitates communication with the Overlay P2P
+  # network from Ruby.
   module Overlay
+
+    # Primary Overlay Connection Interface, use Connection
+    # to send and receive Peer-To-Peer data over the Overlay.
+    #
+    # @example establishing a connection, reading frames
+    #   overlay = XRBP::Overlay::Connection.new "127.0.0.1", 51235
+    #   overlay.connect
+    #
+    #   overlay.read_frames do |frame|
+    #     puts "Message: #{frame.type_name} (#{frame.size} bytes)"
+    #   end
     class Connection
       attr_reader :host, :port
       attr_accessor :node
@@ -10,14 +28,17 @@ module XRBP
         @node = Crypto.node
       end
 
+      # @private
       def socket
         @socket ||= TCPSocket.open(host, port)
       end
 
+      # Indicates if the connection is closed
       def closed?
         socket.closed?
       end
 
+      # @private
       def ssl_socket
         @ssl_socket ||= begin
           ssl_context = OpenSSL::SSL::SSLContext.new
@@ -31,29 +52,38 @@ module XRBP
         end
       end
 
+      # @private
       def handshake
         @handshake ||= Handshake.new self
       end
 
       ###
 
+      # Initiate new connection to peer
       def connect
         ssl_socket.connect
         handshake.execute!
       end
 
-      def close
+      # Close the connection to peer
+      def close!
         ssl_socket.close
       end
 
+      alias :close :close!
+
+      # Send raw data  via this connection
       def write(data)
         ssl_socket.puts(data)
       end
 
+      # Read raw data from connection
       def read
         ssl_socket.gets
       end
 
+      # Read frames from connection until closed, invoking
+      # passed block with each.
       def read_frames
         frame = nil
         remaining = nil

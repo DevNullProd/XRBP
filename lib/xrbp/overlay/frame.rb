@@ -3,6 +3,10 @@ require_relative './ripple.proto'
 
 module XRBP
   module Overlay
+    # Overlay Message Frame, prefixes Protobuf based message in
+    # with header describing size and type.
+    #
+    # @private
     class Frame
       TYPE_INFER = Bistro.new([
         'L>', 'size',

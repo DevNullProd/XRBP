@@ -1,17 +1,24 @@
-# XXX this module requires the openssl-ruby gem with the following patches:
-#     https://github.com/ruby/openssl/pull/250
-#
-#     Otherwise the ssl_socket#finished and #peer_finished methods will
-#     not be available
-#
-#     Currently the only way to apply this is to checkout openssl-ruby, apply
-#     the patches, and then rebuild/reinstall the gem locally!
-
 require 'base64'
 require 'openssl'
 
 module XRBP
   module Overlay
+
+    # Overlay Connection Handshake, the first message sent from connection
+    # initiator to remote endpoint establishing session. Once connection
+    # is successfully established subsequent messages will be encapsulated
+    # Frames.
+    #
+    # XXX this module requires the openssl-ruby gem with the following patches:
+    #     https://github.com/ruby/openssl/pull/250
+    #
+    #     Otherwise the ssl_socket#finished and #peer_finished methods will
+    #     not be available
+    #
+    #     Currently the only way to apply this is to checkout openssl-ruby, apply
+    #     the patches, and then rebuild/reinstall the gem locally!
+    #
+    # @private
     class Handshake
       attr_reader :connection, :response
 

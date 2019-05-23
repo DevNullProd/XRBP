@@ -1,1 +1,2 @@
 --no-private
+--exclude ripple.proto.rb

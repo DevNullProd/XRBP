@@ -2,25 +2,46 @@ require 'base58'
 require 'openssl'
 
 module XRBP
+  # The NodeStore is the Key/Value DB which rippled persistent stores
+  # ledger data. Implemented via a backend configured at run time,
+  # the NodeStore is used to store the tree-like structures that
+  # consistute the XRP ledger.
+  #
+  # The Keys and Values stored in the NodeStore are custom binary
+  # encodings of tree-node IDs and data. See this module
+  # and the others in this directory for specifics on how keys & values
+  # are stored and extracted.
   module NodeStore
+
+    # Base NodeStore DB module, the client will use this class through
+    # specific DB-type subclass.
+    #
+    # Subclasses should define the <b>[  ]</b> (index) method taking key to
+    # lookup, returning corresponding NodeStore value and *each* method,
+    # iterating over nodestore values (see existing subclasses for
+    # implementation details)
     class DB
       include Enumerable
       include EventEmitter
 
       # TODO return nil if db lookup not found
 
+      # Return the NodeStore Ledger for the given lookup hash
       def ledger(hash)
         parse_ledger(self[hash])
       end
 
+      # Return the NodeStore Account for the given lookup hash
       def account(hash)
         parse_ledger_entry(self[hash])
       end
 
+      # Return the NodeStore Transaction for the given lookup hash
       def tx(hash)
         parse_tx(self[hash])
       end
 
+      # Return the NodeStore InnerNode for the given lookup hash
       def inner_node(hash)
         parse_inner_node(self[hash])
       end
@@ -29,6 +50,9 @@ module XRBP
 
       private
 
+      # Parsers binary ledger representation into structured ledger.
+      #
+      # @private
       def parse_ledger(ledger)
         obj = Format::LEDGER.decode(ledger)
                obj['close_time'] = XRBP::from_xrp_time(obj['close_time']).utc
@@ -39,6 +63,11 @@ module XRBP
         obj
       end
 
+      # Certain data types are prefixed with an 'encoding' header
+      # consisting of a field and/or type. Field, type, and remaining
+      # bytes are returned
+      #
+      # @private
       def parse_encoding(encoding)
              enc = encoding.unpack("C").first
             type = enc >> 4
@@ -59,6 +88,11 @@ module XRBP
         [[type, field], encoding]
       end
 
+      # Parses binary ledger entry into hash. Data returned
+      # in hash includes ledger entry type prefix, index,
+      # and array of parsed fields.
+      #
+      # @private
       def parse_ledger_entry(ledger_entry)
         # validate parsability
                 obj = Format::TYPE_INFER.decode(ledger_entry)
@@ -97,6 +131,9 @@ module XRBP
 
       ###
 
+      # Parse and return series of fields from binary data.
+      #
+      # @private
       def parse_fields(fields)
         parsed = {}
         until fields == "" || fields == "\0" || fields.nil?
@@ -112,6 +149,10 @@ module XRBP
         return parsed
       end
 
+      # Parse single field of specified encoding from data.
+      # Dispatches to corresponding parsing method when appropriate.
+      #
+      # @private
       def parse_field(data, encoding)
         length = encoding.first
 
@@ -135,7 +176,6 @@ module XRBP
         when :vl
           vl, offset = parse_vl(data)
           return data[offset..vl+offset-1], data[vl+offset..-1]
-
         when :account
           return parse_account(data)
         when :array
@@ -147,12 +187,15 @@ module XRBP
         when :vector256
           vl, offset = parse_vl(data)
           return data[offset..vl+offset-1], data[vl+offset..-1]
-
         end
 
         raise
       end
 
+      # Parse variable length header from data buffer. Returns length
+      # extracted from header and the number of bytes in header.
+      #
+      # @private
       def parse_vl(data)
          data = data.bytes
         first = data.first.to_i
@@ -172,6 +215,9 @@ module XRBP
         raise
       end
 
+      # Parse 'Amount' data type from binary data.
+      #
+      # @private
       def parse_amount(data)
         amount = data[0..7].unpack("Q>").first
            xrp = amount < 0x8000000000000000
@@ -195,6 +241,9 @@ module XRBP
                :issuer => issuer }, data
       end
 
+      # Parse 'Account' data type from binary data.
+      #
+      # @private
       def parse_account(data, vl=nil)
         unless vl
           vl,offset = parse_vl(data)
@@ -209,6 +258,9 @@ module XRBP
         return Base58.binary_to_base58(acct, :ripple), data[vl..-1]
       end
 
+      # Parse array of fields from binary data.
+      #
+      # @private
       def parse_array(data, encoding)
         e = Format::ENCODINGS[encoding]
         return nil, data if e == :end_of_array
@@ -229,6 +281,9 @@ module XRBP
         return array, data
       end
 
+      # Parse Object consisting of multiple fields from binary data.
+      #
+      # @private
       def parse_object(data, encoding)
         e = Format::ENCODINGS[encoding]
         case e
@@ -248,6 +303,9 @@ module XRBP
         raise "unknown object type"
       end
 
+      # Parse PathSet from binary data.
+      #
+      # @private
       def parse_pathset(data)
         pathset = [[]]
         until data == "" || data.nil?
@@ -287,6 +345,9 @@ module XRBP
 
       ###
 
+      # Parse Transaction from binary data
+      #
+      # @private
       def parse_tx(tx)
                 obj = Format::TYPE_INFER.decode(tx)
           node_type = Format::NODE_TYPES[obj["node_type"]]
@@ -312,6 +373,9 @@ module XRBP
           :index => index.pack("C*").unpack("H*").first.upcase }
       end
 
+      # Parse InnerNode from binary data.
+      #
+      # @private
       def parse_inner_node(node)
         # verify parsability
                 obj = Format::TYPE_INFER.decode(node)
@@ -323,6 +387,9 @@ module XRBP
 
       protected
 
+      # Return type and extracted structure from binary data.
+      #
+      # @private
       def infer_type(value)
                 obj = Format::TYPE_INFER.decode(value)
           node_type = Format::NODE_TYPES[obj["node_type"]]

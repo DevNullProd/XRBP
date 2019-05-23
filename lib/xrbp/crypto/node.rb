@@ -2,6 +2,10 @@ require 'base58'
 
 module XRBP
   module Crypto
+    # Generate and new XRPL node.
+    #
+    # @param key [Symbol, Hash] key type to generate or key itself (optional)
+    # @return [Hash] node details containing id and pub/priv key pair
     def self.node(key=nil)
       pub = nil
       if key == :secp256k1 || key.nil?

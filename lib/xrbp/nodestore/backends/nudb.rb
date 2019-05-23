@@ -8,6 +8,14 @@ require_relative './decompressor'
 module XRBP
   module NodeStore
     module Backends
+      # NuDB nodestore backend, faciliates accessing XRP Ledger data
+      # in a NuDB database. This module accommodates for compression
+      # used in rippled's NuDB nodestore backend implementation
+      #
+      # @example retrieve data from NuDB backend
+      #   require 'nodestore/backends/nudb'
+      #   nudb = NodeStore::Backends::NuDB.new '/var/lib/rippled/db/nudb'
+      #   puts nudb.ledger('B506ADD630CB707044B4BFFCD943C1395966692A13DD618E5BD0978A006B43BD')
       class NuDB < DB
         include Decompressor
 
@@ -21,10 +29,33 @@ module XRBP
           open
         end
 
+        # Retrieve database value for the specified key
+        #
+        # @param key [String] binary key to lookup
+        # @return [String] binary value
         def [](key)
           decompress(@store.fetch(key)[0])
         end
 
+        # Iterate over each database key/value pair,
+        # invoking callback. During iteration will
+        # emit signals specific to the DB types being
+        # parsed
+        #
+        # @example iterating over NuDB entries
+        #   nudb.each do |iterator|
+        #     puts "Key/Value: #{iterator.key}/#{iterator.value}"
+        #   end
+        #
+        # @example handling ledgers via event callback
+        #   nudb.on(:ledger) do |hash, ledger|
+        #     puts "Ledger #{hash}"
+        #     pp ledger
+        #   end
+        #
+        #   # Any Enumerable method that invokes #each will
+        #   # have intended effect
+        #   nudb.to_a
         def each
           dat = File.join(path, "nudb.dat")
 
@@ -47,6 +78,9 @@ module XRBP
 
         private
 
+        # Create database if it does not exist
+        #
+        # @private
         def create!
           dat = File.join(path, "nudb.dat")
           key = File.join(path, "nudb.key")
@@ -62,8 +96,9 @@ module XRBP
                        :load_factor => 0.5
         end
 
-
-
+        # Open existing database
+        #
+        # @private
         def open
           dat = File.join(path, "nudb.dat")
           key = File.join(path, "nudb.key")

@@ -16,11 +16,13 @@ module XRBP
 
       ###
 
+      # @return [String] new random private key
       def self.priv
         seed = SecureRandom.random_bytes(32)
         OpenSSL::Digest::SHA256.new.digest(seed)
       end
 
+      # @return [Hash] new secp256k1 key pair (both public and private components)
       def self.secp256k1
           # XXX: the bitcoin secp256k1 implementation (which rippled pulls in / vendors)
           #      has alot of nuances which require special configuration in openssl. For
@@ -47,6 +49,7 @@ module XRBP
             :private => spk.send(:serialize) }
       end
 
+      # @return [Hash] new ed25519 key pair (both public and private components)
       def self.ed25519
         # XXX openssl 1.1.1 needed for EdDSA support:
         #     https://www.openssl.org/blog/blog/2018/09/11/release111/
@@ -64,6 +67,11 @@ module XRBP
 
       ###
 
+      # Sign the digest using the specified key, returning the result
+      #
+      # @param key [Hash] key to sign digest with
+      # @param data [String] data to sign (must be exactly 32 bytes long!)
+      # @return [String] signed digest
       def self.sign_digest(key, data)
         raise "unknown key" unless key.is_a?(Hash) && key[:type] && key[:private]
         raise "invalid data" unless data.length == 32
@@ -86,6 +94,9 @@ module XRBP
         raise "unknown key type"
       end
 
+      # TODO verify signed data
+      #
+      # @private (for now)
       def self.verify(key, data, expected)
       end
     end

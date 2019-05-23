@@ -17,16 +17,20 @@ module XRBP
         4 => :tx_node
       }
 
-      HASH_PREFIXES = {
-        "54584E00" => :tx_id,
-        "534E4400" => :tx_node,
-        "4D4C4E00" => :leaf_node,
-        "4D494E00" => :inner_node,
-        "494E5200" => :inner_node_v2,
-        "4C575200" => :ledger_master,
-        "53545800" => :tx_sign,
-        "56414C00" => :validation,
-        "50525000" => :proposal
+      HASH_PREFIXES = {               # ASCII value:
+        "54584E00" => :tx_id,         # TXN
+        "534E4400" => :tx_node,       # SND
+        "4D4C4E00" => :leaf_node,     # MLN
+        "4D494E00" => :inner_node,    # MIN
+        "494E5200" => :inner_node_v2, # INR
+        "4C575200" => :ledger_master, # LWR
+        "53545800" => :tx_sign,       # STX
+        "56414C00" => :validation,    # VAL
+        "50525000" => :proposal       # PRP
+
+        # TODO:       :tx_multi_sign  # SMT
+        #             :manifest       # MAN
+        #             :paychan_claim  # CLM
       }
 
       ###
