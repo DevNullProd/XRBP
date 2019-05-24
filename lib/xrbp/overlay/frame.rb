@@ -42,13 +42,13 @@ module XRBP
       end
 
       def <<(data)
-        remaining = size - (@data.size + header_size)
+        remaining = size - @data.size
         @data += data[0..remaining-1]
         return @data, data[remaining..-1]
       end
 
       def complete?
-        (@data.size + header_size) == size
+        @data.size == size
       end
     end # class Frame
   end # module WebClient
