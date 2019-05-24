@@ -100,8 +100,6 @@ module XRBP
 
             _, remaining = frame << out
             if frame.complete?
-              # TODO extra specific protobuf data structure
-              #      from data, set on frame
               yield frame
               frame = nil
             end
