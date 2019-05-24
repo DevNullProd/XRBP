@@ -13,7 +13,7 @@ module XRBP
       NODE_TYPES = {
         1 => :ledger,
         2 => :tx,
-        3 => :account_node,
+        3 => :account_node, # aka 'ledger_entry'
         4 => :tx_node
       }
 
@@ -297,6 +297,31 @@ module XRBP
            'C', 'close_time_resolution',
            'C', 'close_flags',
       ])
+
+      ###
+
+      LEDGER_ENTRY_TYPES = {
+        :any             =>  -3,
+        :child           =>  -2,
+        :invalid         =>  -1,
+        :account_root    => 'a',
+        :dir_node        => 'd',
+        :ripple_state    => 'r',
+        :ticket          => 'T',
+        :signer_list     => 'S',
+        :offer           => 'O',
+        :ledger_hashes   => 'h',
+        :amendments      => 'f',
+        :fee_settings    => 's',
+        :escrow          => 'u',
+        :paychan         => 'x',
+        :check           => 'C',
+        :deposit_preauth => 'p'
+      }
+
+      LEDGER_ENTRY_TYPE_CODES = LEDGER_ENTRY_TYPES.invert
+
+      ###
 
       CURRENCY_CODE = Bistro.new([
         'C',   'type_code',

@@ -33,6 +33,11 @@ module XRBP
 
       # Return the NodeStore Account for the given lookup hash
       def account(hash)
+        ledger_entry(hash)
+      end
+
+      # Return the NodeStore Ledger Entry for the given lookup hash
+      def ledger_entry(hash)
         parse_ledger_entry(self[hash])
       end
 
@@ -121,10 +126,10 @@ module XRBP
         # remaining bytes are serialized object
         fields = parse_fields(ledger_entry[2...-32].pack("C*"))
 
-        # TODO instantiate class corresponding to prefix &
-        #      populate attributes w/ fields
+        # TODO instantiate class corresponding to type &
+        #      populate attributes w/ fields (?)
 
-        { :prefix => prefix,
+        { :type   => Format::LEDGER_ENTRY_TYPE_CODES[prefix[1]],
           :index  => index,
           :fields => fields }
       end
@@ -296,13 +301,13 @@ module XRBP
              :majority, :memo,
              :modified_node, :created_node, :deleted_node,
              :previous_fields, :final_fields, :new_fields
-          # TODO instantiate corresponding classes
+          # TODO instantiate corresponding classes (?)
           return parse_fields(data)
 
         #else:
         end
 
-        raise "unknown object type"
+        raise "unknown object type: #{e}"
       end
 
       # Parse PathSet from binary data.
@@ -328,6 +333,7 @@ module XRBP
             end
 
             if (segment & 0x10) != 0 # path currency
+              # FIXME extract & use common logic from parse_amount
               currency = Format::CURRENCY_CODE.decode(data)
               data = data[Format::CURRENCY_CODE.size..-1]
               path[:currency] = currency
@@ -401,7 +407,7 @@ module XRBP
           return :inner_node, parse_inner_node(value)
 
         elsif node_type == :account_node
-          return :account, parse_ledger_entry(value)
+          return :ledger_entry, parse_ledger_entry(value)
 
         elsif node_type == :tx_node
           return :tx, parse_tx(value)
