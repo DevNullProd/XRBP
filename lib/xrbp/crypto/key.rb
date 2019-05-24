@@ -30,10 +30,20 @@ module XRBP
 
           spk = Secp256k1::PrivateKey.new
 
-          # FIXME: figure out why setting private key from seed doesn't work
           sd = Crypto.seed[:seed]
           pk = Crypto.parse_seed(sd)
-          #spk.set_raw_privkey [pk].pack("H*")
+
+          # FIXME: ripple-keypairs (and by extension ripple-lib) repeatedly
+          #        hash seed until certain it is less than the order of the
+          #        curve, we should do this as well (for security)
+          #        https://github.com/ripple/ripple-keypairs/blob/master/src/secp256k1.js
+          #
+          #        Also look into if setting raw key here has same effect as
+          #        secp256k1.mul (as invoked in keypairs)
+          sha512 = OpenSSL::Digest::SHA512.new
+          pk = sha512.digest(pk)[0..31]
+
+          spk.set_raw_privkey pk
 
           {  :public => spk.pubkey.serialize.unpack("H*").first,
             :private => spk.send(:serialize),
