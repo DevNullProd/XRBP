@@ -13,7 +13,7 @@ module XRBP
         pub = key[:public]
 
       elsif key.is_a?(Hash)
-        # TODO if key[:seed] (generate secp256k1 key from specified seed)
+        key = Key::secp256k1(key[:seed]) if key[:seed]
         pub = key[:public]
 
       else

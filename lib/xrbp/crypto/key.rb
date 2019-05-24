@@ -17,7 +17,7 @@ module XRBP
       ###
 
       # @return [Hash] new secp256k1 key pair (both public and private components)
-      def self.secp256k1
+      def self.secp256k1(seed=nil)
           # XXX: the bitcoin secp256k1 implementation (which rippled pulls in / vendors)
           #      has alot of nuances which require special configuration in openssl. For
           #      the time being, mitigate this by pulling in & using the ruby
@@ -30,12 +30,20 @@ module XRBP
 
           spk = Secp256k1::PrivateKey.new
 
-          sd = Crypto.seed[:seed]
-          pk = Crypto.parse_seed(sd)
+          sd, pk = nil
+          if seed
+            sd,pk = seed,seed
 
-          # FIXME: ripple-keypairs (and by extension ripple-lib) repeatedly
+          else
+            sd = Crypto.seed[:seed]
+            pk = Crypto.parse_seed(sd)
+          end
+
+          # FIXME: rippled & ripple-keypairs (& by extension ripple-lib) repeatedly
           #        hash seed until certain it is less than the order of the
           #        curve, we should do this as well (for security)
+          #
+          #        https://github.com/ripple/rippled/blob/develop/src/ripple/crypto/impl/GenerateDeterministicKey.cpp
           #        https://github.com/ripple/ripple-keypairs/blob/master/src/secp256k1.js
           #
           #        Also look into if setting raw key here has same effect as
@@ -47,7 +55,7 @@ module XRBP
 
           {  :public => spk.pubkey.serialize.unpack("H*").first,
             :private => spk.send(:serialize),
-               #:seed => sd,
+               :seed => sd,
                :type => :secp256k1 }
       end
 
