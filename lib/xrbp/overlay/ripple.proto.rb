@@ -74,6 +74,21 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     optional :lastLink, :bool, 4
     repeated :peerchain, :uint32, 5
   end
+  add_message "protocol.TMLink" do
+    optional :nodePubKey, :bytes, 1
+  end
+  add_message "protocol.TMGetPeerShardInfo" do
+    optional :hops, :uint32, 1
+    optional :lastLink, :bool, 2
+    repeated :peerChain, :message, 3, "protocol.TMLink"
+  end
+  add_message "protocol.TMPeerShardInfo" do
+    optional :shardIndexes, :string, 1
+    optional :nodePubKey, :bytes, 2
+    optional :endpoint, :string, 3
+    optional :lastLink, :bool, 4
+    repeated :peerChain, :message, 5, "protocol.TMLink"
+  end
   add_message "protocol.TMTransaction" do
     optional :rawTransaction, :bytes, 1
     optional :status, :enum, 2, "protocol.TransactionStatus"
@@ -210,6 +225,8 @@ Google::Protobuf::DescriptorPool.generated_pool.build do
     value :MTGET_OBJECTS, 42
     value :MTGET_SHARD_INFO, 50
     value :MTSHARD_INFO, 51
+    value :MTGET_PEER_SHARD_INFO, 52
+    value :MTPEER_SHARD_INFO, 53
   end
   add_enum "protocol.TransactionStatus" do
     value :TSZERO, 0
@@ -275,6 +292,9 @@ module Protocol
   TMCluster = Google::Protobuf::DescriptorPool.generated_pool.lookup("protocol.TMCluster").msgclass
   TMGetShardInfo = Google::Protobuf::DescriptorPool.generated_pool.lookup("protocol.TMGetShardInfo").msgclass
   TMShardInfo = Google::Protobuf::DescriptorPool.generated_pool.lookup("protocol.TMShardInfo").msgclass
+  TMLink = Google::Protobuf::DescriptorPool.generated_pool.lookup("protocol.TMLink").msgclass
+  TMGetPeerShardInfo = Google::Protobuf::DescriptorPool.generated_pool.lookup("protocol.TMGetPeerShardInfo").msgclass
+  TMPeerShardInfo = Google::Protobuf::DescriptorPool.generated_pool.lookup("protocol.TMPeerShardInfo").msgclass
   TMTransaction = Google::Protobuf::DescriptorPool.generated_pool.lookup("protocol.TMTransaction").msgclass
   TMStatusChange = Google::Protobuf::DescriptorPool.generated_pool.lookup("protocol.TMStatusChange").msgclass
   TMProposeSet = Google::Protobuf::DescriptorPool.generated_pool.lookup("protocol.TMProposeSet").msgclass
