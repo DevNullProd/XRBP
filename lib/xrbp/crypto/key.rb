@@ -48,13 +48,16 @@ module XRBP
         #     Until then use this:
         require "ed25519"
 
-        # FIXME: this works for now (eg generates valid keys),
-        #        but we should do this in the same way rippled does:
-        #        Generate private key, then generate corresponding
-        #        Ed25519 public key
-        key = Ed25519::SigningKey.generate
-        {  :public => key.to_bytes.unpack("H*").first.upcase,
-          :private => key.verify_key.to_bytes.unpack("H*").first.upcase,
+        sd = Crypto.seed[:seed]
+        pk = Crypto.parse_seed(sd)
+
+        sha512 = OpenSSL::Digest::SHA512.new
+        pk = sha512.digest(pk)[0..31]
+
+        key = Ed25519::SigningKey.new(pk)
+        {  :public => key.verify_key.to_bytes.unpack("H*").first.upcase,
+          :private => key.to_bytes.unpack("H*").first.upcase,
+             :seed => sd,
              :type => :ed25519 }
       end
 
@@ -80,8 +83,18 @@ module XRBP
           sig_raw = pk.ecdsa_sign data, raw: true
           return pk.ecdsa_serialize sig_raw
 
-        #elsif key[:type] == :ed25519
-          # TODO
+        elsif key[:type] == :ed25519
+          # XXX: see note about this library above
+          require "ed25519"
+
+          sd = key[:seed]
+          pk = Crypto.parse_seed(sd)
+
+          sha512 = OpenSSL::Digest::SHA512.new
+          pk = sha512.digest(pk)[0..31]
+
+          pk = Ed25519::SigningKey.new(pk)
+          return pk.sign(data)
         end
 
         raise "unknown key type"
@@ -101,8 +114,16 @@ module XRBP
           return pb.ecdsa_verify expected,
                  pv.ecdsa_deserialize(data), raw: true
 
-        #elsif key[:type] == :ed25519
-          # TODO
+        elsif key[:type] == :ed25519
+          # XXX: see note about this library above
+          require "ed25519"
+
+          pk = Ed25519::VerifyKey.new([key[:public]].pack("H*"))
+          begin
+            return pk.verify(data, expected)
+          rescue Ed25519::VerifyError
+            return false
+          end
         end
 
         raise "unknown key type"
