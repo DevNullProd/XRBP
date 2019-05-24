@@ -41,6 +41,10 @@ module XRBP
         @type_name ||= self.class.type_name(type)
       end
 
+      def message
+        @message ||= MESSAGES[type_name].decode(data)
+      end
+
       def <<(data)
         remaining = size - @data.size
         @data += data[0..remaining-1]

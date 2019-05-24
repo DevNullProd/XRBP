@@ -7,6 +7,7 @@ puts overlay.handshake.response
 
 overlay.read_frames do |frame|
   puts "Message: #{frame.type_name} (#{frame.size} bytes)"
+  # frame.message => protobuf message
 end
 
 overlay.close
