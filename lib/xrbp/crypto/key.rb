@@ -90,19 +90,15 @@ module XRBP
         raise "unknown key" unless key.is_a?(Hash) && key[:type] && key[:private]
         raise "invalid data" unless data.length == 32
 
-
         if key[:type] == :secp256k1
-          # XXX: see note about this library above
           require 'secp256k1'
 
           pk = Secp256k1::PrivateKey.new
           pk.set_raw_privkey [key[:private]].pack("H*")
-          #pk.pubkey.deserialize [key[:public]].pack("H*")
           sig_raw = pk.ecdsa_sign data, raw: true
           return pk.ecdsa_serialize sig_raw
 
         elsif key[:type] == :ed25519
-          # XXX: see note about this library above
           require "ed25519"
 
           sd = key[:seed]
@@ -128,7 +124,6 @@ module XRBP
       #   original data
       def self.verify(key, data, expected)
         if key[:type] == :secp256k1
-          # XXX: see note about this library above
           require 'secp256k1'
 
           pb = Secp256k1::PublicKey.new :pubkey => [key[:public]].pack("H*"),
@@ -139,7 +134,6 @@ module XRBP
                  pv.ecdsa_deserialize(data), raw: true
 
         elsif key[:type] == :ed25519
-          # XXX: see note about this library above
           require "ed25519"
 
           pk = Ed25519::VerifyKey.new([key[:public]].pack("H*"))
