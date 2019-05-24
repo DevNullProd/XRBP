@@ -16,12 +16,6 @@ module XRBP
 
       ###
 
-      # @return [String] new random private key
-      def self.priv
-        seed = SecureRandom.random_bytes(32)
-        OpenSSL::Digest::SHA256.new.digest(seed)
-      end
-
       # @return [Hash] new secp256k1 key pair (both public and private components)
       def self.secp256k1
           # XXX: the bitcoin secp256k1 implementation (which rippled pulls in / vendors)
@@ -42,8 +36,7 @@ module XRBP
           #      the public key is not able to verify the signature
           #      generated from the private key set in this way.
           # TODO: Investigate
-          #      Also investigate using seed (and in ed25519 below)
-           #pk = priv
+          #pk = Crypto.parse_seed(Crypto.seed[:seed])
           #spk.set_raw_privkey [pk].pack("H*")
 
           {  :public => spk.pubkey.serialize.unpack("H*").first,
@@ -95,10 +88,25 @@ module XRBP
         raise "unknown key type"
       end
 
-      # TODO verify signed data
-      #
-      # @private (for now)
+      # Returns bool indicating if data is the result of
+      # signing expected value with given key.
       def self.verify(key, data, expected)
+        if key[:type] == :secp256k1
+          # XXX: see note about this library above
+          require 'secp256k1'
+
+          pb = Secp256k1::PublicKey.new :pubkey => [key[:public]].pack("H*"),
+                                           :raw => true
+          pv = Secp256k1::PrivateKey.new
+
+          return pb.ecdsa_verify expected,
+                 pv.ecdsa_deserialize(data), raw: true
+
+        #elsif key[:type] == :ed25519
+          # TODO
+        end
+
+        raise "unknown key type"
       end
     end # module Key
   end # module Crypto
