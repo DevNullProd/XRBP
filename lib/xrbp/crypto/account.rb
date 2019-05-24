@@ -32,6 +32,11 @@ module XRBP
       { :account => Base58.binary_to_base58(account_id  + chksum, :ripple) }.merge(key)
     end
 
+    # Extract Account ID from Address.
+    #
+    # @param account [String] Base58 encoded account address
+    # @return [String, nil] unique account id or nil if input
+    #   if not an account
     def self.parse_account(account)
       bin = Base58.base58_to_binary(account, :ripple)
       typ = bin[0]
@@ -46,6 +51,7 @@ module XRBP
       return bin
     end
 
+    # Return boolean indicating if the specified account is valid
     def self.account?(account)
       parse_account(account) != nil
     end

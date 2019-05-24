@@ -28,6 +28,11 @@ module XRBP
       { :node => Base58.binary_to_base58(node_id + chksum, :ripple) }.merge(key)
     end
 
+    # Extract Node ID from Address.
+    #
+    # @param node [String] Base58 encoded node address
+    # @return [String, nil] unique node id or nil if input
+    #   if not an node
     def self.parse_node(node)
       bin = Base58.base58_to_binary(node, :ripple)
       typ = bin[0]
@@ -42,6 +47,7 @@ module XRBP
       return bin
     end
 
+    # Return boolean indicating if the specified node is valid
     def self.node?(node)
       parse_node(node) != nil
     end

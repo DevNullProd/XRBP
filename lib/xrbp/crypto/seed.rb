@@ -3,6 +3,10 @@ require 'securerandom'
 
 module XRBP
   module Crypto
+    # Generate a new XRPL seed.
+    #
+    # @param key [Symbol] key type to generate (optional)
+    # @return [Hash] seed details containing encoded seed and key type
     def self.seed(key=nil)
       prefix = nil
       if key == :secp256k1 || key.nil?
@@ -24,6 +28,11 @@ module XRBP
       { :seed => Base58.binary_to_base58(pref + chk, :ripple) }.merge(key)
     end
 
+    # Extract Seed ID from Encoding.
+    #
+    # @param seed [String] Base58 encoded seed
+    # @return [String, nil] extracted seed or nil
+    #   if not valid
     def self.parse_seed(seed)
       bin = Base58.base58_to_binary(seed, :ripple)
       typ = bin[0]
@@ -41,6 +50,7 @@ module XRBP
       return bin
     end
 
+    # Return boolean indicating if the specified seed is valid
     def self.seed?(seed)
       parse_seed(seed) != nil
     end

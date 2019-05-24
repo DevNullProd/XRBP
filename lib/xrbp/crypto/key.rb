@@ -120,6 +120,12 @@ module XRBP
 
       # Returns bool indicating if data is the result of
       # signing expected value with given key.
+      #
+      # @param key [Hash] key to use to verify digest
+      # @param data [String] signed data
+      # @param expected [String] original unsigned data
+      # @return [Bool] indicating if signed digest matches
+      #   original data
       def self.verify(key, data, expected)
         if key[:type] == :secp256k1
           # XXX: see note about this library above
