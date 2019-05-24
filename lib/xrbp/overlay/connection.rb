@@ -77,6 +77,14 @@ module XRBP
         ssl_socket.puts(data)
       end
 
+      def write_frame(msg)
+        write(Frame.from_msg(msg))
+      end
+
+      def write_msg(data)
+        write_frame(Overlay.create_msg(data))
+      end
+
       # Read raw data from connection
       def read
         ssl_socket.gets

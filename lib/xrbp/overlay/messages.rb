@@ -23,5 +23,9 @@ module XRBP
       :MTVALIDATION           => Protocol::TMValidation,
       :MTGET_OBJECTS          => Protocol::TMGetObjectByHash
     }
+
+    def self.create_msg(hash)
+      # ...
+    end
   end # module Overlay
 end # module XRBP

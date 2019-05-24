@@ -30,6 +30,10 @@ module XRBP
       attr_reader :type, :size
       attr_accessor :data
 
+      def self.from_msg(msg)
+        # ...
+      end
+
       def initialize(type, size)
         @type = type
         @size = size
