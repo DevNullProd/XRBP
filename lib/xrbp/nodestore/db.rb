@@ -217,6 +217,8 @@ module XRBP
 
       # Parse 'Amount' data type from binary data.
       #
+      # @see https://developers.ripple.com/currency-formats.html
+      #
       # @private
       def parse_amount(data)
         amount = data[0..7].unpack("Q>").first
@@ -229,16 +231,16 @@ module XRBP
 
         data = data[8..-1]
         currency = Format::CURRENCY_CODE.decode(data)
+        currency = currency["iso_code"].pack("C*")
 
         data = data[Format::CURRENCY_CODE.size..-1]
         issuer, data = parse_account(data, 20)
 
-        # TODO calculate value
-        return { :sign => sign,
-                  :exp => exp,
-             :mantissa => mant,
-             :currency => currency,
-               :issuer => issuer }, data
+        amount = (sign == 0 ? -1 : 1) * mant * 10 ** (exp-97)
+
+        return { :amount => amount,
+               :currency => currency,
+                 :issuer => issuer }, data
       end
 
       # Parse 'Account' data type from binary data.
