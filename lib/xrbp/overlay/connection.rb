@@ -106,11 +106,11 @@ module XRBP
               frame = nil
             end
 
-            # XXX: doesn't feel right to just
-            #      discard remaining, look into this
+            # static assertion: should have no more data
+            raise unless remaining.nil? || remaining.empty?
           end
         end
       end
     end # class Connection
-  end # module WebClient
+  end # module Overlay
 end # module XRBP
