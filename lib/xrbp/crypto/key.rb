@@ -30,17 +30,15 @@ module XRBP
 
           spk = Secp256k1::PrivateKey.new
 
-          # XXX: I'd like to generate the private key first & set,
-          #      but for some reason this doesn't work. When the
-          #      keys are loaded for signing/verification later
-          #      the public key is not able to verify the signature
-          #      generated from the private key set in this way.
-          # TODO: Investigate
-          #pk = Crypto.parse_seed(Crypto.seed[:seed])
+          # FIXME: figure out why setting private key from seed doesn't work
+          sd = Crypto.seed[:seed]
+          pk = Crypto.parse_seed(sd)
           #spk.set_raw_privkey [pk].pack("H*")
 
           {  :public => spk.pubkey.serialize.unpack("H*").first,
-            :private => spk.send(:serialize) }
+            :private => spk.send(:serialize),
+               #:seed => sd,
+               :type => :secp256k1 }
       end
 
       # @return [Hash] new ed25519 key pair (both public and private components)
@@ -56,7 +54,8 @@ module XRBP
         #        Ed25519 public key
         key = Ed25519::SigningKey.generate
         {  :public => key.to_bytes.unpack("H*").first.upcase,
-          :private => key.verify_key.to_bytes.unpack("H*").first.upcase }
+          :private => key.verify_key.to_bytes.unpack("H*").first.upcase,
+             :type => :ed25519 }
       end
 
       ###

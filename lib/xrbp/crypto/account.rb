@@ -10,12 +10,10 @@ module XRBP
       pub = nil
       if key == :secp256k1 || key.nil?
         key = Key::secp256k1
-        key[:type] = :secp256k1
         pub = key[:public]
 
       elsif key == :ed25519
         key = Key::ed25519
-        key[:type] = :ed25519
         pub = "\xED" + key[:public]
 
       elsif key.is_a?(Hash)
