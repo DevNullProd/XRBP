@@ -34,7 +34,9 @@ module XRBP
         # @param key [String] binary key to lookup
         # @return [String] binary value
         def [](key)
-          decompress(@store.fetch(key)[0])
+          fetched = @store.fetch(key)[0]
+          return nil if fetched.empty?
+          decompress(fetched)
         end
 
         # Iterate over each database key/value pair,

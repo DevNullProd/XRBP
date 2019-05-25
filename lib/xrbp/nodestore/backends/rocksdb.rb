@@ -13,7 +13,7 @@ module XRBP
       #   puts rocksdb.ledger('B506ADD630CB707044B4BFFCD943C1395966692A13DD618E5BD0978A006B43BD')
       class RocksDB < DB
         # cap max open files for performance
-        MAX_OPEN_FILES = 200
+        MAX_OPEN_FILES = 2000
 
         def initialize(path)
           @db = ::RocksDB::DB.new path,
