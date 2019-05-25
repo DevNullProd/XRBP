@@ -38,7 +38,12 @@ module XRBP
     # @return [String, nil] unique account id or nil if input
     #   if not an account
     def self.parse_account(account)
-      bin = Base58.base58_to_binary(account, :ripple)
+      begin
+        bin = Base58.base58_to_binary(account, :ripple)
+      rescue ArgumentError
+        return nil
+      end
+
       typ = bin[0]
       chk = bin[-4..-1]
       bin = bin[1...-4]

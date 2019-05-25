@@ -34,7 +34,12 @@ module XRBP
     # @return [String, nil] unique node id or nil if input
     #   if not an node
     def self.parse_node(node)
-      bin = Base58.base58_to_binary(node, :ripple)
+      begin
+        bin = Base58.base58_to_binary(node, :ripple)
+      rescue ArgumentError
+        return nil
+      end
+
       typ = bin[0]
       chk = bin[-4..-1]
       bin = bin[1...-4]

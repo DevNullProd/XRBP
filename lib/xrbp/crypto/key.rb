@@ -60,14 +60,20 @@ module XRBP
       end
 
       # @return [Hash] new ed25519 key pair (both public and private components)
-      def self.ed25519
+      def self.ed25519(seed=nil)
         # XXX openssl 1.1.1 needed for EdDSA support:
         #     https://www.openssl.org/blog/blog/2018/09/11/release111/
         #     Until then use this:
         require "ed25519"
 
-        sd = Crypto.seed[:seed]
-        pk = Crypto.parse_seed(sd)
+        sd, pk = nil
+        if seed
+          sd,pk = seed,seed
+
+        else
+          sd = Crypto.seed[:seed]
+          pk = Crypto.parse_seed(sd)
+        end
 
         sha512 = OpenSSL::Digest::SHA512.new
         pk = sha512.digest(pk)[0..31]
