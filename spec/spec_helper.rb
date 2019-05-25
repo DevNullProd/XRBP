@@ -6,6 +6,8 @@ Camcorder.config.recordings_dir = 'spec/recordings'
 require 'xrbp'
 
 RSpec.configure do |config|
+  config.alias_it_should_behave_like_to :it_provides,  'provides:'
+
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
