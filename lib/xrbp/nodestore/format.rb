@@ -3,19 +3,15 @@ require "bistro"
 module XRBP
   module NodeStore
     module Format
-      NODE_OBJ_TYPES = {
-        :unknown          => 0,
-        :ledger           => 1,
-        :account_node     => 2,
-        :transaction_node => 3
+      NODE_TYPES = {
+        :unknown       => 0,
+        :ledger        => 1,
+        #:tx           => 2, # unused
+        :account_node  => 3,
+        :tx_node       => 4
       }
 
-      NODE_TYPES = {
-        1 => :ledger,
-        2 => :tx,
-        3 => :account_node, # aka 'ledger_entry'
-        4 => :tx_node
-      }
+      NODE_TYPE_CODES = NODE_TYPES.invert
 
       HASH_PREFIXES = {               # ASCII value:
         "54584E00" => :tx_id,         # TXN

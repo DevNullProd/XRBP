@@ -101,7 +101,7 @@ module XRBP
 
             out = [0, 0, 0, 0,
                    0, 0, 0, 0,
-                   Format::NODE_OBJ_TYPES[:unknown]] +
+                   Format::NODE_TYPES[:unknown]] +
                   [Format::HASH_PREFIXES.invert[:inner_node]].pack("H*")
                                                              .unpack("C*")
 
@@ -146,7 +146,7 @@ module XRBP
 
             out = [0, 0, 0, 0,
                    0, 0, 0, 0,
-                   Format::NODE_OBJ_TYPES[:unknown]] +
+                   Format::NODE_TYPES[:unknown]] +
                   [Format::HASH_PREFIXES.invert[:inner_node_v2]].pack("H*")
                                                                 .unpack("C*")
 
@@ -204,7 +204,7 @@ module XRBP
 
             out = [0, 0, 0, 0,
                    0, 0, 0, 0,
-                   Format::NODE_OBJ_TYPES[:unknown]] +
+                   Format::NODE_TYPES[:unknown]] +
                   [Format::HASH_PREFIXES.invert[:inner_node]].pack("H*").unpack("C*")
             (out + data[0...512].bytes).pack("C*")
           end
@@ -222,7 +222,7 @@ module XRBP
 
             out = [0, 0, 0, 0,
                    0, 0, 0, 0,
-                   Format::NODE_OBJ_TYPES[:unknown]] +
+                   Format::NODE_TYPES[:unknown]] +
                   [Format::HASH_PREFIXES.invert[:inner_node_v2]].pack("H*").unpack("C*")
 
              out += bytes[0..511]
