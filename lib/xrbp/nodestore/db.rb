@@ -413,7 +413,9 @@ module XRBP
         hash_prefix = Format::HASH_PREFIXES[obj["hash_prefix"].upcase]
         raise unless hash_prefix == :inner_node
 
-        Format::INNER_NODE.decode(node)
+        node = Format::INNER_NODE.decode(node)
+        node['node_type'] = Format::NODE_TYPE_CODES[node['node_type']]
+        node
       end
 
       protected
