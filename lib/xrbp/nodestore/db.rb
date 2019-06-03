@@ -356,8 +356,8 @@ module XRBP
             end
 
             if (segment & 0x10) != 0 # path currency
-              # FIXME extract & use common logic from parse_amount
               currency = Format::CURRENCY_CODE.decode(data)
+              currency = currency["iso_code"].pack("C*")
               data = data[Format::CURRENCY_CODE.size..-1]
               path[:currency] = currency
             end
