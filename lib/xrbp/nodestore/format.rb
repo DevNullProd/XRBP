@@ -309,7 +309,7 @@ module XRBP
         :ripple_state    => 'r',
         :ticket          => 'T',
         :signer_list     => 'S',
-        :offer           => 'O',
+        :offer           => 'o',
         :ledger_hashes   => 'h',
         :amendments      => 'f',
         :fee_settings    => 's',
@@ -320,6 +320,37 @@ module XRBP
       }
 
       LEDGER_ENTRY_TYPE_CODES = LEDGER_ENTRY_TYPES.invert
+
+      ###
+
+      TX_TYPES = {
+         -1 => :invalid,
+          0 => :payment,
+          1 => :escrow_create,
+          2 => :escrow_finish,
+          3 => :account_set,
+          4 => :escrow_cancel,
+          5 => :regular_key_set,
+          6 => :nickname_set,    #open
+          7 => :offer_create,
+          8 => :offer_cancel,
+
+          9 => :no_longer_used,
+
+         11 => :ticket_create,
+         12 => :ticket_cancel,
+         13 => :signer_list_set,
+         14 => :paychan_create,
+         15 => :paychan_fund,
+         16 => :paychan_claim,
+         17 => :check_create,
+         18 => :check_cash,
+         19 => :check_cancel,
+         20 => :deposit_preauth,
+
+        100 => :amendment,
+        101 => :fee
+      }
 
       ###
 

@@ -124,7 +124,8 @@ module XRBP
                                       .upcase
 
         # remaining bytes are serialized object
-        fields = parse_fields(ledger_entry[2...-32].pack("C*"))
+        fields, remaining = parse_fields(ledger_entry[2...-32].pack("C*"))
+        raise unless remaining.empty?
 
         # TODO instantiate class corresponding to type &
         #      populate attributes w/ fields (?)
@@ -148,10 +149,10 @@ module XRBP
           e = Format::ENCODINGS[encoding]
           value, fields = parse_field(fields, encoding)
           break unless value
-          parsed[e] = value
+          parsed[e] = convert_field(encoding, value)
         end
 
-        return parsed
+        return parsed, fields
       end
 
       # Parse single field of specified encoding from data.
@@ -165,11 +166,11 @@ module XRBP
         when :uint8
           return data.unpack("C").first, data[1..-1]
         when :uint16
-          return data.unpack("S").first, data[2..-1]
+          return data.unpack("S>").first, data[2..-1]
         when :uint32
-          return data.unpack("L").first, data[4..-1]
+          return data.unpack("L>").first, data[4..-1]
         when :uint64
-          return data.unpack("Q").first, data[8..-1]
+          return data.unpack("Q>").first, data[8..-1]
         when :hash128
           return data.unpack("H32").first, data[16..-1]
         when :hash160
@@ -195,6 +196,22 @@ module XRBP
         end
 
         raise
+      end
+
+      def convert_field(encoding, value)
+        e = Format::ENCODINGS[encoding]
+
+        if encoding.first == :vl
+          return value.unpack("H*").first
+
+        elsif e == :transaction_type
+          return Format::TX_TYPES[value]
+
+        elsif e == :ledger_entry_type
+          return Format::LEDGER_ENTRY_TYPE_CODES[value.chr]
+        end
+
+        value
       end
 
       # Parse variable length header from data buffer. Returns length
@@ -369,12 +386,12 @@ module XRBP
         # get node length
         vl, offset = parse_vl(tx)
         node, _tx = tx.bytes[offset..vl+offset-1], tx.bytes[vl+offset..-1]
-        node = parse_fields(node.pack("C*"))
+        node, _remaining = parse_fields(node.pack("C*"))
 
         # get meta length
         vl, offset = parse_vl(_tx.pack("C*"))
         meta, index = _tx[offset..vl+offset-1], _tx[vl+offset..-1]
-        meta = parse_fields(meta.pack("C*"))
+        meta, _remaining = parse_fields(meta.pack("C*"))
 
         {  :node =>  node,
            :meta =>  meta,
