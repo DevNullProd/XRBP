@@ -24,11 +24,11 @@ module XRBP
       include Enumerable
       include EventEmitter
 
-      # TODO return nil if db lookup not found
-
       # Return the NodeStore Ledger for the given lookup hash
       def ledger(hash)
-        parse_ledger(self[hash])
+        val = self[hash]
+        return nil if val.nil?
+        parse_ledger(val)
       end
 
       # Return the NodeStore Account for the given lookup hash
@@ -38,17 +38,23 @@ module XRBP
 
       # Return the NodeStore Ledger Entry for the given lookup hash
       def ledger_entry(hash)
-        parse_ledger_entry(self[hash])
+        val = self[hash]
+        return nil if val.nil?
+        parse_ledger_entry(val)
       end
 
       # Return the NodeStore Transaction for the given lookup hash
       def tx(hash)
-        parse_tx(self[hash])
+        val = self[hash]
+        return nil if val.nil?
+        parse_tx(val)
       end
 
       # Return the NodeStore InnerNode for the given lookup hash
       def inner_node(hash)
-        parse_inner_node(self[hash])
+        val = self[hash]
+        return nil if val.nil?
+        parse_inner_node(val)
       end
 
       ###
