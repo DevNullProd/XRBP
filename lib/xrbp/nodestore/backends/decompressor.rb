@@ -107,7 +107,7 @@ module XRBP
 
             # extract mask indicating which hashes are set
             bytes = data.bytes
-             mask = bytes[0..1].pack("C*").unpack("S").first
+             mask = bytes[0..1].pack("C*").unpack("S>").first
             bytes = bytes[2..-1]
 
             raise "nodeobject codec v1: empty inner node" if mask == 0
@@ -153,7 +153,7 @@ module XRBP
             # Same mask / hash extraction as V1
 
             bytes = data.bytes
-             mask = bytes[0..1].pack("C*").unpack("S").first
+             mask = bytes[0..1].pack("C*").unpack("S>").first
             bytes = bytes[2..-1]
 
             raise "nodeobject codec v2: empty inner node" if mask == 0
