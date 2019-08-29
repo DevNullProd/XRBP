@@ -74,9 +74,12 @@ Session-Signature: #{shared}\r
           read_sockets, _, _ = IO.select([socket], nil, nil, 0.1)
 
           if read_sockets && read_sockets[0]
-            out = socket.read_nonblock(1024)
-            @response += out.strip
-            break if out[-4..-1] == "\r\n\r\n"
+            begin
+              out = socket.read_nonblock(1024)
+              @response += out.strip
+              break if out[-4..-1] == "\r\n\r\n"
+            rescue OpenSSL::SSL::SSLErrorWaitReadable
+            end
           end
         end
       end
