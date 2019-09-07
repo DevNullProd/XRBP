@@ -319,6 +319,33 @@ module XRBP
 
       ###
 
+      LEDGER_NAMESPACE = {
+        :account         => 'a',
+        :dir_node        => 'd',
+        :generator       => 'g',
+        :ripple          => 'r',
+        :offer           => 'o',
+        :owner_dir       => 'O',
+        :book_dir        => 'B',
+        :contract        => 'c',
+        :skip_list       => 's',
+        :escrow          => 'u',
+        :amendment       => 'f',
+        :fee             => 'e',
+        :ticket          => 'T',
+        :signer_list     => 'S',
+        :xrp_uchannel    => 'x',
+        :check           => 'C',
+        :deposit_preauth => 'p',
+
+        # usused (according to rippled docs)
+        :nickname        => 'n'
+      }
+
+      LEDGER_NAMESPACE_CODES = LEDGER_NAMESPACE.invert
+
+      ###
+
       TX_TYPES = {
          -1 => :invalid,
           0 => :payment,
