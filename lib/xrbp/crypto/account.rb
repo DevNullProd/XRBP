@@ -39,6 +39,16 @@ module XRBP
       { :account => Base58.binary_to_base58(account_id  + chksum, :ripple) }.merge(key)
     end
 
+    # Account Zero: https://xrpl.org/accounts.html#special-addresses
+    def self.xrp_account
+      @xrp_account ||= account(:account_id => ([0] * 21).pack("C*"))
+    end
+
+    # Account One: https://xrpl.org/accounts.html#special-addresses
+    def self.no_account
+      account :account_id => ([0] * 20 + [1]).pack("C*")
+    end
+
     # Extract Account ID from Address.
     #
     # @param account [String] Base58 encoded account address
