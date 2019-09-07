@@ -8,6 +8,7 @@ module XRBP
     # @return [Hash] account details containing id and pub/priv key pair
     def self.account(key=nil)
       pub = nil
+      account_id = nil
       if key == :secp256k1 || key.nil?
         key = Key::secp256k1
         pub = key[:public]
@@ -17,16 +18,22 @@ module XRBP
         pub = "\xED" + key[:public]
 
       elsif key.is_a?(Hash)
-        pub = key[:public]
+        if key[:account_id]
+          account_id = key[:account_id]
+        elsif key[:public]
+          pub = key[:public]
+        end
 
       else
         pub = key
         key = {:public => pub}
       end
 
+      raise "must specify pub or account_id" unless pub || account_id
+
           sha256 = OpenSSL::Digest::SHA256.new
        ripemd160 = OpenSSL::Digest::RIPEMD160.new
-      account_id = [Key::TOKEN_TYPES[:account_id]].pack("C") + ripemd160.digest(sha256.digest([pub].pack("H*")))
+      account_id = [Key::TOKEN_TYPES[:account_id]].pack("C") + ripemd160.digest(sha256.digest([pub].pack("H*"))) unless account_id
           chksum = sha256.digest(sha256.digest(account_id))[0..3]
 
       { :account => Base58.binary_to_base58(account_id  + chksum, :ripple) }.merge(key)
