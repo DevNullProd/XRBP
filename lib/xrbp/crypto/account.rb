@@ -39,6 +39,11 @@ module XRBP
       { :account => Base58.binary_to_base58(account_id  + chksum, :ripple) }.merge(key)
     end
 
+    # Return the account id for the specified XRP account
+    def self.account_id(account)
+      Base58.base58_to_binary(account, :ripple)[1..-5]
+    end
+
     # Account Zero: https://xrpl.org/accounts.html#special-addresses
     def self.xrp_account
       @xrp_account ||= account(:account_id => ([0] * 21).pack("C*"))
