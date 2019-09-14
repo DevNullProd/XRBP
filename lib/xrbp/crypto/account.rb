@@ -2,7 +2,7 @@ require 'base58'
 
 module XRBP
   module Crypto
-    # Generate and new XRPL account.
+    # Generate a new XRPL account.
     #
     # @param key [Symbol, Hash] key type to generate or key itself (optional)
     # @return [Hash] account details containing id and pub/priv key pair
