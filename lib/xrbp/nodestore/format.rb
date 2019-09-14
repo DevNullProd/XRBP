@@ -383,6 +383,12 @@ module XRBP
         'C3',  'iso_code',
         'C5',  'reserved2'
       ])
+
+      def self.encode_currency(iso_code)
+        ([0] * 12).pack("C*") +
+              iso_code.upcase +
+        ([0] *  8).pack("C*")
+      end
     end # module Format
   end # module NodeStore
 end # module XRBP
