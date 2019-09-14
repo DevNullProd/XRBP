@@ -46,12 +46,12 @@ module XRBP
 
     # Account Zero: https://xrpl.org/accounts.html#special-addresses
     def self.xrp_account
-      @xrp_account ||= account(:account_id => ([0] * 21).pack("C*"))
+      @xrp_account ||= account(:account_id => ([0] * 21).pack("C*"))[:account]
     end
 
     # Account One: https://xrpl.org/accounts.html#special-addresses
     def self.no_account
-      account :account_id => ([0] * 20 + [1]).pack("C*")
+      @no_account ||= account(:account_id => ([0] * 20 + [1]).pack("C*"))[:account]
     end
 
     # Extract Account ID from Address.
