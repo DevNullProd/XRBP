@@ -7,7 +7,11 @@ require_relative './shamap/item'
 
 module XRBP
   class SHAMap
-    def initialize(version)
+    def initialize(args={})
+              @db = args[:db]
+         @version = args[:version]
+      @ledger_seq = args[:ledger_seq]
+
       if version == 2
         @root = InnerNode.new :v2 => true: depth => 0
       else
@@ -22,9 +26,15 @@ module XRBP
       return item.key
     end
 
+    def fetch(key)
+      res = get_cache(key)
+      return res if res
+      canonicalize(key, fetch_node(key))
+    end
+
     private
 
-    attr_reader :root
+    attr_reader :db, :root
 
     def v2?
       root && root.v2?
@@ -34,7 +44,42 @@ module XRBP
       :end
     end
 
+    def treecache
+      @treecache ||= TaggedCache.new
+    end
+
     ###
+
+    def get_cache(key)
+      treecache.fetch(key)
+    end
+
+    def fetch_node(key)
+      obj = db.fetch(key, le)
+      begin
+        node = Node.make(node, 0, :prefix, key, true)
+
+        if node && node.inner?
+          if node.v2? != v2?
+            raise unless root && root.empty?
+            if v2?
+              @root = make_v2
+            else
+              @root = make_v1
+            end
+          end
+        end
+
+        return node
+      rescue Exception
+        puts "TODO: verify"
+        return TreeNode.new
+      end
+    end
+
+    def canonicalize(key, node)
+      treecache.canonicalize(key, node)
+    end
 
     def inconsistent_node?(node)
       return true  if !root ||

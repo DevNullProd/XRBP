@@ -7,10 +7,10 @@ module XRBP
         @v2    = args[:v2]
         @depth = args[:depth]
 
-        @common    = []
-        @hashes    = []
+        @common    = {}
+        @hashes    = {}
         @children  = []
-        @is_branch = false
+        @is_branch = 0
       end
 
       def v2?
@@ -33,12 +33,18 @@ module XRBP
         return true
       end
 
+      def empty?
+        is_branch == 0
+      end
+
       def empty_branch?(branch)
-        # ...
+        (is_branch & (1 << branch)) == 0
       end
 
       def child_hash(branch)
-        # ...
+        raise ArgumentError unless branch >= 0 &&
+                                   branch < 16
+        hashes[branch]
       end
     end # class InnerNode
   end # class SHAMap
