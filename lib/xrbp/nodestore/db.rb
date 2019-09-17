@@ -108,7 +108,7 @@ module XRBP
         # validate parsability
                 obj = Format::TYPE_INFER.decode(ledger_entry)
           node_type = Format::NODE_TYPE_CODES[obj["node_type"]]
-        hash_prefix = Format::HASH_PREFIXES[obj["hash_prefix"].upcase]
+        hash_prefix = Format::HASH_PREFIX_CODES[obj["hash_prefix"].upcase]
         raise unless   node_type == :account_node &&
                      hash_prefix == :leaf_node
 
@@ -382,7 +382,7 @@ module XRBP
       def parse_tx(tx)
                 obj = Format::TYPE_INFER.decode(tx)
           node_type = Format::NODE_TYPE_CODES[obj["node_type"]]
-        hash_prefix = Format::HASH_PREFIXES[obj["hash_prefix"].upcase]
+        hash_prefix = Format::HASH_PREFIX_CODES[obj["hash_prefix"].upcase]
         raise unless   node_type == :tx_node &&
                      hash_prefix == :tx_node
 
@@ -410,7 +410,7 @@ module XRBP
       def parse_inner_node(node)
         # verify parsability
                 obj = Format::TYPE_INFER.decode(node)
-        hash_prefix = Format::HASH_PREFIXES[obj["hash_prefix"].upcase]
+        hash_prefix = Format::HASH_PREFIX_CODES[obj["hash_prefix"].upcase]
         raise unless hash_prefix == :inner_node
 
         node = Format::INNER_NODE.decode(node)
@@ -426,7 +426,7 @@ module XRBP
       def infer_type(value)
                 obj = Format::TYPE_INFER.decode(value)
           node_type = Format::NODE_TYPE_CODES[obj["node_type"]]
-        hash_prefix = Format::HASH_PREFIXES[obj["hash_prefix"].upcase]
+        hash_prefix = Format::HASH_PREFIX_CODES[obj["hash_prefix"].upcase]
 
         if hash_prefix == :inner_node
           return :inner_node, parse_inner_node(value)

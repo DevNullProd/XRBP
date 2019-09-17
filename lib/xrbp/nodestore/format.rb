@@ -13,7 +13,7 @@ module XRBP
 
       NODE_TYPE_CODES = NODE_TYPES.invert
 
-      HASH_PREFIXES = {               # ASCII value:
+      HASH_PREFIX_CODES = {           # ASCII value:
         "54584E00" => :tx_id,         # TXN
         "534E4400" => :tx_node,       # SND
         "4D4C4E00" => :leaf_node,     # MLN
@@ -28,6 +28,8 @@ module XRBP
         #             :manifest       # MAN
         #             :paychan_claim  # CLM
       }
+
+      HASH_PREFIXES = HASH_PREFIX_CODES.invert
 
       ###
 

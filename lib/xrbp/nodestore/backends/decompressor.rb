@@ -102,8 +102,8 @@ module XRBP
             out = [0, 0, 0, 0,
                    0, 0, 0, 0,
                    Format::NODE_TYPES[:unknown]] +
-                  [Format::HASH_PREFIXES.invert[:inner_node]].pack("H*")
-                                                             .unpack("C*")
+                  [Format::HASH_PREFIXES[:inner_node]].pack("H*")
+                                                      .unpack("C*")
 
             # extract mask indicating which hashes are set
             bytes = data.bytes
@@ -147,8 +147,8 @@ module XRBP
             out = [0, 0, 0, 0,
                    0, 0, 0, 0,
                    Format::NODE_TYPES[:unknown]] +
-                  [Format::HASH_PREFIXES.invert[:inner_node_v2]].pack("H*")
-                                                                .unpack("C*")
+                  [Format::HASH_PREFIXES[:inner_node_v2]].pack("H*")
+                                                         .unpack("C*")
 
             # Same mask / hash extraction as V1
 
@@ -205,7 +205,8 @@ module XRBP
             out = [0, 0, 0, 0,
                    0, 0, 0, 0,
                    Format::NODE_TYPES[:unknown]] +
-                  [Format::HASH_PREFIXES.invert[:inner_node]].pack("H*").unpack("C*")
+                  [Format::HASH_PREFIXES[:inner_node]].pack("H*")
+                                                      .unpack("C*")
             (out + data[0...512].bytes).pack("C*")
           end
 
@@ -223,7 +224,8 @@ module XRBP
             out = [0, 0, 0, 0,
                    0, 0, 0, 0,
                    Format::NODE_TYPES[:unknown]] +
-                  [Format::HASH_PREFIXES.invert[:inner_node_v2]].pack("H*").unpack("C*")
+                  [Format::HASH_PREFIXES[:inner_node_v2]].pack("H*")
+                                                         .unpack("C*")
 
              out += bytes[0..511]
             bytes = bytes[512..-1]
