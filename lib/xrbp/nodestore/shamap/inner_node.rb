@@ -1,11 +1,13 @@
 module XRBP
   class SHAMap
+    # A DB entry which may contain references of up to 16-child
+    # nodes, facilitating abstract tree-like traversal
     class InnerNode < Node
-      attr_reader :depth, :common
+      attr_accessor :depth, :common, :hashes, :is_branch
 
       def initialize(args={})
         @v2    = args[:v2]
-        @depth = args[:depth]
+        @depth = args[:depth] || 0
 
         @common    = {}
         @hashes    = {}
@@ -45,6 +47,42 @@ module XRBP
         raise ArgumentError unless branch >= 0 &&
                                    branch < 16
         hashes[branch]
+      end
+
+      def child(branch)
+        raise ArgumentError unless branch >= 0 &&
+                                   branch < 16
+        @children[branch]
+      end
+
+      def canonicalize_child(branch, node)
+        raise ArgumentError unless branch >= 0 &&
+                                   branch < 16
+        raise unless node
+        raise unless node.hash == hashes[branch]
+
+        if @children[branch]
+          return @children[branch]
+        else
+          return @children[branch] = node
+        end
+      end
+
+      def update_hash
+        nh = nil
+
+        if is_branch != 0
+          sha512 = OpenSSL::Digest::SHA512.new
+          sha512 << HASH_+PREFIXES[:inner_node]
+          hashes.each { |k,h|
+            sha512 << v
+          }
+          nh = sha512.digest
+        end
+
+        return false if nh == self.hash
+        self.hash = nh
+        return true
       end
     end # class InnerNode
   end # class SHAMap

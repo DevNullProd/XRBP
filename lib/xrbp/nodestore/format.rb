@@ -50,6 +50,38 @@ module XRBP
         19 => :vector256
       }
 
+      SERIALIZED_FLAGS = {
+        # ltACCOUNT_ROOT
+        :password_spent    => 0x00010000,   # True, if password set fee is spent.
+        :require_dest_tag  => 0x00020000,   # True, to require a DestinationTag for payments.
+        :require_auth      => 0x00040000,   # True, to require a authorization to hold IOUs.
+        :disallow_xrp      => 0x00080000,   # True, to disallow sending XRP.
+        :disable_master    => 0x00100000,   # True, force regular key
+        :no_freeze         => 0x00200000,   # True, cannot freeze ripple states
+        :global_freeze     => 0x00400000,   # True, all assets frozen
+        :default_ripple    => 0x00800000,   # True, trust lines allow rippling by default
+        :deposit_auth      => 0x01000000,   # True, all deposits require authorization
+
+        # ltOFFER
+        :passive           => 0x00010000,
+        :sell              => 0x00020000,   # True, offer was placed as a sell.
+
+        # ltRIPPLE_STATE
+        :low_reserve       => 0x00010000,   # True, if entry counts toward reserve.
+        :high_reserve      => 0x00020000,
+        :low_auth          => 0x00040000,
+        :high_auth         => 0x00080000,
+        :low_no_ripple     => 0x00100000,
+        :high_no_ripple    => 0x00200000,
+        :low_freeze        => 0x00400000,   # True, low side has set freeze flag
+        :high_freeze       => 0x00800000,   # True, high side has set freeze flag
+
+        # ltSIGNER_LIST
+        :one_owner_count   => 0x00010000,   # True, uses only one OwnerCount
+      }
+
+      ###
+
       ENCODINGS = {
         # 16-bit unsigned integers (common)
         [:uint16,  1] => :ledger_entry_type,
@@ -234,6 +266,8 @@ module XRBP
         [:vector256, 3] => :amendments,
       }
 
+      ENCODING_TYPES = ENCODINGS.invert
+
       ###
 
       TYPE_INFER = Bistro.new([
@@ -389,7 +423,7 @@ module XRBP
       def self.encode_currency(iso_code)
         ([0] * 12).pack("C*") +
               iso_code.upcase +
-        ([0] *  8).pack("C*")
+        ([0] *  5).pack("C*")
       end
     end # module Format
   end # module NodeStore

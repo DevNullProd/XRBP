@@ -1,5 +1,7 @@
 module XRBP
   class SHAMap
+    # Internal node caching mechanism.
+    #
     # TODO timeout mechanism, metrics
     class TaggedCache
       def initialize

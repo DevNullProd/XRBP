@@ -29,6 +29,16 @@ class String
   def to_bn
     bytes.inject(0) { |bn, b| (bn << 8) | b }
   end
+
+  def all?(&bl)
+    each_char { |c| return false unless bl.call(c) }
+    return true
+  end
+
+  def zero?
+    return self == "\0" if size == 1
+    all? { |c| c.zero? }
+  end
 end
 
 # @private

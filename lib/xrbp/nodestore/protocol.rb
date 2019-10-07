@@ -1,0 +1,5 @@
+require_relative './protocol/currency'
+require_relative './protocol/issue'
+require_relative './protocol/indexes'
+require_relative './protocol/rate'
+require_relative './protocol/quality'
