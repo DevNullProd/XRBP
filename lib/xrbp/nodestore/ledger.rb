@@ -223,8 +223,10 @@ module XRBP
                 offer[:taker_gets_funded] = taker_gets_funded
                 offer[:taker_pays_funded] = [taker_pays,
                                              taker_gets_funded *
-                                                      dir_rate *
-                                              taker_pays.issue].min
+                                                      dir_rate].min
+
+                # XXX: done in multiply operation in rippled
+                offer[:taker_pays_funded].issue = taker_pays.issue
               end
 
               owner_pays = (Rate.parity == offer_rate) ?

@@ -5,7 +5,8 @@ module XRBP
       # see: https://github.com/ripple/rippled/blob/b53fda1e1a7f4d09b766724274329df1c29988ab/src/ripple/protocol/STAmount.h#L67
       MIN_VAL = 1000000000000000
 
-      attr_reader :mantissa, :exponent, :neg, :issue
+      attr_reader :mantissa, :exponent, :neg
+      attr_accessor :issue
 
       alias :value  :mantissa
       alias :offset :exponent
