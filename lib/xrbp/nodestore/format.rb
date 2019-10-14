@@ -421,6 +421,8 @@ module XRBP
       ])
 
       def self.encode_currency(iso_code)
+        return ([0] * 20).pack("C*") if iso_code == 'XRP'
+
         ([0] * 12).pack("C*") +
               iso_code.upcase +
         ([0] *  5).pack("C*")
