@@ -61,7 +61,7 @@ module XRBP
         return STAmount.zero if !sle || frozen?(owner_id, iou)
 
         amount = sle.amount(:balance)
-        amount *= -1 if owner_id > iou[:account]
+        amount.negate! if owner_id > iou[:account]
         balance_hook(amount)
       end
 

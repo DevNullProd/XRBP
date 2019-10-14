@@ -48,6 +48,11 @@ module XRBP
         @mantissa = 0
       end
 
+      def negate!
+        return if zero?
+        @neg = !@neg
+      end
+
       def sn_value
         neg ? (-mantissa) : mantissa
       end
