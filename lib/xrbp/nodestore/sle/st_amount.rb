@@ -176,7 +176,7 @@ module XRBP
         STAmount.new :issue => issue,
                      :mantissa => (m1 * m2)/(10**14),
                      :exponent => (e1 + e2 + 14),
-                     :neg      => (neg != v.neg)
+                     :neg      => (neg != o.neg)
       end
 
       def -@
