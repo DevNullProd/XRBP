@@ -2,7 +2,7 @@ require 'xrbp/nodestore/backends/rocksdb'
 
 require_relative "./db_access"
 #require_relative "./db_iterator_access"
-#require_relative "./db_parser"
+#require_relative "../db_parser"
 
 describe XRBP::NodeStore::Backends::RocksDB do
   before(:each) do
