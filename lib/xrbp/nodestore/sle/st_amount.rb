@@ -62,7 +62,7 @@ module XRBP
       alias :drops :xrp_amount
 
       def iou_amount
-        (neg ? -1 : 1) * mant * 10 ** (exp-97)
+        (neg ? -1 : 1) * mantissa * 10 ** (exponent-97)
       end
 
       ###
