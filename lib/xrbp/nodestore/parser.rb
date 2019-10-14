@@ -139,8 +139,9 @@ module XRBP
           return parse_pathset(data)
         when :vector256
           vl, offset = parse_vl(data)
-          # split into array of 256-bit (32 byte) strings
-          return data[offset..vl+offset-1].scan(/.{32}/),
+
+          # split into array of 256-bit (= 32 byte = 4 chars) strings
+          return data[offset..vl+offset-1].chunk(32),
                  data[vl+offset..-1]
         end
 

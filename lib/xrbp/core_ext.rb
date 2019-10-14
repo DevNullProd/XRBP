@@ -39,6 +39,12 @@ class String
     return self == "\0" if size == 1
     all? { |c| c.zero? }
   end
+
+  # scan(regex) will not work as we need to process
+  # binary strings (\n's seem to trip scan up)
+  def chunk(size)
+    ((self.length + size - 1) / size).times.collect { |i| self[i * size, size] }
+  end
 end
 
 # @private
