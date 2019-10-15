@@ -60,3 +60,14 @@ class Integer
     b
   end
 end
+
+# @private
+class Array
+  def rjust!(n, x)
+    insert(0, *Array.new([0, n-length].max, x))
+  end
+
+  def ljust!(n, x)
+    fill(x, length...n)
+  end
+end

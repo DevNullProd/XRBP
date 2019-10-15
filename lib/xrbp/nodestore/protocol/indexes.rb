@@ -15,6 +15,24 @@ module XRBP
                           .reverse.pack("C*")
       end
 
+      ###
+
+      def self.dir_node_index(root, index)
+        return root if index == 0
+
+        sha512 = OpenSSL::Digest::SHA512.new
+        sha512 << "\0"
+        sha512 << Format::LEDGER_NAMESPACE[:dir_node]
+        sha512 << root
+        sha512 << index.bytes.rjust!(8, 0).pack("C*")
+
+        sha512.digest[0..31]
+      end
+
+      def self.page(key, index)
+        dir_node_index key, index
+      end
+
       # Account index from id
       def self.account(id)
         id = Crypto.account_id(id)
@@ -36,7 +54,7 @@ module XRBP
         sha512 << "\0"
         sha512 << Format::LEDGER_NAMESPACE[:ripple]
 
-        if account < issuer
+        if account.to_bn < issuer.to_bn
           sha512 << account
           sha512 << issuer
 

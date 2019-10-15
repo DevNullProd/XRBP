@@ -30,6 +30,7 @@ module XRBP
     def read(key)
       raise if key.zero?
       item = peek_item(key)
+      return nil unless item
        sle = NodeStore::SLE.new :item => item,
                                 :key  => key
       #return nil unless key.check?(sle)
@@ -291,7 +292,7 @@ module XRBP
         nxt = node.field(:uint64, :index_next)
         return nil unless nxt
 
-        nxt = shamap.read(root_index, nxt)
+        nxt = read(NodeStore::Indexes::page(root_index, nxt))
         return nil unless nxt
 
         return cdir_next(root_index, nxt, 0)
