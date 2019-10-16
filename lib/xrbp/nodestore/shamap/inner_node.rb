@@ -1,7 +1,9 @@
 module XRBP
   class SHAMap
     # A DB entry which may contain references of up to 16-child
-    # nodes, facilitating abstract tree-like traversal
+    # nodes, facilitating abstract tree-like traversal.
+    #
+    # This class simply encapsulates children w/ hashes
     class InnerNode < Node
       attr_accessor :depth, :common, :hashes, :is_branch
 
@@ -35,26 +37,32 @@ module XRBP
         return true
       end
 
+      # Returns true if node has no children
       def empty?
         is_branch == 0
       end
 
+      # Return true if specified branch is empty,
+      # else false
       def empty_branch?(branch)
         (is_branch & (1 << branch)) == 0
       end
 
+      # Returns hash of child on given branch
       def child_hash(branch)
         raise ArgumentError unless branch >= 0 &&
                                    branch < 16
         hashes[branch]
       end
 
+      # Returns child containing in given branch
       def child(branch)
         raise ArgumentError unless branch >= 0 &&
                                    branch < 16
         @children[branch]
       end
 
+      # Canonicalize and store child node at branch
       def canonicalize_child(branch, node)
         raise ArgumentError unless branch >= 0 &&
                                    branch < 16
@@ -68,6 +76,7 @@ module XRBP
         end
       end
 
+      # Update this node's hash from child hashes
       def update_hash
         nh = nil
 

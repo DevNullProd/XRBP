@@ -20,6 +20,8 @@ module XRBP
       end
     end
 
+    # Return the next key in tree greater than
+    # specified one and less than last
     def succ(key, last)
       item = upper_bound(key)
       return nil if item == map_end
@@ -27,6 +29,8 @@ module XRBP
       return item.key
     end
 
+    # Read Key from database and return
+    # corresponding SLE
     def read(key)
       raise if key.zero?
       item = peek_item(key)
@@ -39,18 +43,23 @@ module XRBP
 
     ###
 
+    # Return node corresponding to key
+    # or nil if not found
     def peek_item(key)
       leaf = find_key(key)
       return nil unless leaf
       leaf.peek_item
     end
 
+    # Fetch node from database raising
+    # error if it is not found
     def fetch_node(key)
       node = fetch_node_nt(key)
       raise unless node
       node
     end
 
+    # Retrieve node from db.
     # nt = no throw
     def fetch_node_nt(key)
       res = get_cache(key)
@@ -58,6 +67,8 @@ module XRBP
       canonicalize(key, fetch_node_from_db(key))
     end
 
+    # Fetch key from database and assign
+    # result as root element
     def fetch_root(key)
       return true if key == root.hash
 
@@ -80,22 +91,28 @@ module XRBP
       :end
     end
 
+    # Used to cache nodes by key
     def treecache
       @treecache ||= TaggedCache.new
     end
 
     ###
 
+    # Return node in cache corresponding to key
     def get_cache(key)
       treecache.fetch(key)
     end
 
+    # Return node in tree corresponding to key, else nil
     def find_key(key)
       leaf, stack = walk_towards_key(key)
       return nil if leaf && leaf.peek_item.key != key
       leaf
     end
 
+    # Retreive specified key from database and
+    # create new Node-subclass instance corresponding
+    # to record type.
     def fetch_node_from_db(key)
       # XXX: shorthand object decoding by removing unused & type fields
       obj = db[key][9..-1]
@@ -121,10 +138,13 @@ module XRBP
       end
     end
 
+    # Canonicalize/cache key/node in treecache
     def canonicalize(key, node)
       treecache.canonicalize(key, node)
     end
 
+    # Return bool indicating if node is
+    # inconsistent with this tree
     def inconsistent_node?(node)
       return true  if !root ||
                       !node
@@ -139,16 +159,27 @@ module XRBP
 
     ###
 
+    # Return first item in tree _after_ given
+    # key (eg whose key is > given key).
+    #
+    # Given item does not need to be in tree.
     def upper_bound(key)
+      # Return traversal stack to key
       leaf, stack = walk_towards_key(key)
+
+      # Pop the stack until empty
       until stack.empty?
         node, node_id = *stack.last
 
+        # If current item is leaf, return if
+        # item.key > key
         if node.leaf?
           if node.item.key.to_bn > key.to_bn
             return node.item
           end
 
+        # If inner node, select next higher
+        # branch to traverse
         else
           branch = nil
           if v2?
@@ -163,6 +194,9 @@ module XRBP
             branch = node_id.select_branch(key) + 1
           end
 
+          # Start traversal from selected branch
+          # on up, returning first node below
+          # non-empty branches
           inner = node
           branch.upto(15) { |b|
             next if inner.empty_branch?(b)
@@ -176,21 +210,33 @@ module XRBP
         stack.pop
       end
 
+      # If no items > this one, return map_end
       map_end
     end
 
+    # Descends Inner Tree Nodes in NodeStore
+    # until we reach non-inner-node.
+    #
+    # Return complete stack of walk.
     def walk_towards_key(key)
       stack = []
 
+      # Start with root node
       in_node = root
       node_id = NodeID.new
+
+      # Iterate until node is no longer inner
       while in_node.inner?
         stack.push [in_node, node_id]
 
         return nil, stack if v2? && in_node.common_prefix?(key)
+
+        # Select tree branch which has key
+        # we are looking for, ensure it is not empty
         branch = node_id.select_branch(key)
         return nil, stack if in_node.empty_branch?(branch)
 
+        # Descend to branch node
         in_node = descend_throw in_node, branch
         if v2?
           if in_node.inner?
@@ -202,14 +248,20 @@ module XRBP
           end
 
         else
+          # Get ID of branch node
           node_id = node_id.child_node_id branch
         end
       end
 
+      # Push final node (assumably corresponding to key)
       stack.push [in_node, node_id]
+
+      # Return final node (corresponding to key) and stack
       return in_node, stack
     end
 
+    # Descend to specified branch in parent,
+    # throw exception if we cannot
     def descend_throw(parent, branch)
       ret = descend(parent, branch)
       raise Errors::MissingNode, parent.child_hash(branch) if !ret &&
@@ -217,6 +269,8 @@ module XRBP
       ret
     end
 
+    # Retreive node from nodestore corresponding to
+    # specified branch of parent.
     def descend(parent, branch)
       ret = parent.child(branch)
       return ret if ret # || !backed? # TODO (backed)
@@ -228,12 +282,20 @@ module XRBP
       node
     end
 
+    # Returns first leaf node at or below the specified
+    # node.
+    #
+    # @param node to evaluation
+    # @param stack ancestor node stack
+    # @param branch this node is on
     def first_below(node, stack, branch)
+      # Return node if node is a leaf
       if node.leaf?
         stack.push [node, node.peek_item.key]
         return node, stack
       end
 
+      # Append node to ancestry stack for traversal
       if stack.empty?
         stack.push [node, NodeID.new]
 
@@ -247,17 +309,21 @@ module XRBP
         end
       end
 
+      # Iterate over non-empty branches
       i = 0
       while i < 16
         if !node.empty_branch?(i)
+          # descend into branch
           node = descend_throw(node, i)
           raise if stack.empty?
 
+          # Return first leaf
           if node.leaf?
             stack.push [node, node.peek_item.key]
             return node, stack
           end
 
+          # Continue tree descent at new level
           if v2?
             stack.push [node, NodeID.new(:depth => node.depth,
                                          :key   => node.common)]
@@ -273,6 +339,7 @@ module XRBP
         end
       end
 
+      # No node found, return nil and the stack
       return nil, stack
     end
 

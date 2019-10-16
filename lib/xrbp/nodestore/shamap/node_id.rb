@@ -11,6 +11,10 @@ module XRBP
 
       MASK_SIZE = 64
 
+      # Masks corresponding to each tree level.
+      # Used to calculate inner node hash for
+      # tree level:
+      #   inner node = lookup key & mask
       def masks
         @masks ||= begin
           masks = Array.new(MASK_SIZE)
