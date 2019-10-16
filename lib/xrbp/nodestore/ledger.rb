@@ -172,6 +172,7 @@ module XRBP
           end
 
           if !done
+            # Read offer from db and process
             sle_offer = state_map.read(offer_index)
             if sle_offer
                 owner_id = sle_offer.account_id(:account)

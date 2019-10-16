@@ -9,7 +9,7 @@ module XRBP
         @key   ||= args[:key]   || NodeStore.uint256
       end
 
-      MASK_SIZE = 64
+      MASK_SIZE = 65
 
       # Masks corresponding to each tree level.
       # Used to calculate inner node hash for
@@ -34,6 +34,7 @@ module XRBP
         end
       end
 
+      # Return mask for current tree depth
       def mask
         @mask ||= masks[depth]
       end
