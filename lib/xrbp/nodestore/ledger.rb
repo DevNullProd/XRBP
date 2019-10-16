@@ -130,6 +130,8 @@ module XRBP
       def order_book(input, output)
         offers = []
 
+        # Start at order book index
+        # Stop after max order book quality
         tip_index = Indexes::order_book(input, output)
          book_end = Indexes::get_quality_next(tip_index)
 
@@ -141,17 +143,19 @@ module XRBP
         balances = {}
              ret = {:offers => []}
 
-               done = false
-             direct = true
-           dir_rate = nil
-          offer_dir = nil
-        offer_index = nil
-         book_entry = nil
+               done = false # set true when we cannot traverse anymore
+             direct = true  # set true when we need to find next dir
+          offer_dir = nil   # current directory being travred
+           dir_rate = nil   # current directory quality
+        offer_index = nil   # index of current offer being processed
+         book_entry = nil   # index of next offer directory record
         until done
           if direct
             direct = false
+            # Return first index after tip
             ledger_index = state_map.succ(tip_index, book_end)
             if ledger_index
+              # retrieve offer_dir SLE from db
               offer_dir = state_map.read(ledger_index)
             else
               offer_dir = nil
@@ -160,6 +164,7 @@ module XRBP
             if !offer_dir
               done = true
             else
+              # Set new tip, get first offer at new tip
               tip_index = offer_dir.key
               dir_rate = STAmount.from_quality(Indexes::get_quality(tip_index))
               offer_index, offer_dir, book_entry = state_map.cdir_first(tip_index)
@@ -236,6 +241,7 @@ module XRBP
 
               balances[owner_id] = owner_funds - owner_pays
 
+              # Add offer to return array
               offers << offer
 
               # include all offers funded and unfunded
@@ -247,7 +253,11 @@ module XRBP
               puts "missing offer"
             end
 
+            # Retrieve next offer in offer_dir,
+            # updating offer_index, offer_dir, book_entry appropriately
             offer_index, offer_dir, book_entry = *state_map.cdir_next(tip_index, offer_dir, book_entry)
+
+            # if next offer not retrieved find next record after tip
             direct = true if !offer_index
           end
         end

@@ -345,12 +345,39 @@ module XRBP
 
     public
 
+    # Returns first directory index in the specified root index
+    #
+    # @see cdir_next below
     def cdir_first(root_index)
       node = read(root_index)
       raise unless node # never probe for dirs
       cdir_next(root_index, node, 0)
     end
 
+    # Returns the key of the index in the the node's
+    # "indexes" field corresponding to 'dir_entry'.
+    #
+    # Also returns directory node which contains
+    # key of the node being returned.
+    #
+    # Also returns dir_entry index of next record in
+    # directory node.
+    #
+    # This method handles the special case where dir_entry
+    # is greater than the local indexes size but the
+    # 'index_next' is also set. In this case, index
+    # traversal will continue on the next SLE node
+    # whose lookup key is calculated from the root
+    # index and 'index_next' value. In this case
+    # the directory node and next dir_entry will be
+    # set appropriately and returned.
+    #
+    # @param root_index top level index of the tree
+    #   being traversed.
+    # @param node SLE containing 'indexes' field from
+    #   which the 'dir_entry'th index will be returned
+    # @param dir_entry numerical array index to return
+    #   from 'indexes'
     def cdir_next(root_index, node, dir_entry)
       indexes = node.field(:vector256, :indexes)
       raise unless dir_entry <= indexes.size
