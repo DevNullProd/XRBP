@@ -298,7 +298,7 @@ module XRBP
         return cdir_next(root_index, nxt, 0)
       end
 
-      return indexes[dir_entry], (dir_entry + 1)
+      return indexes[dir_entry], node, (dir_entry + 1)
     end
   end # class SHAMap
 end # module XRBP

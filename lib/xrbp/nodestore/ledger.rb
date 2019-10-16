@@ -162,7 +162,7 @@ module XRBP
             else
               tip_index = offer_dir.key
               dir_rate = STAmount.from_quality(Indexes::get_quality(tip_index))
-              offer_index, book_entry = state_map.cdir_first(tip_index)
+              offer_index, offer_dir, book_entry = state_map.cdir_first(tip_index)
             end
           end
 
@@ -247,7 +247,7 @@ module XRBP
               puts "missing offer"
             end
 
-            offer_index, book_entry = *state_map.cdir_next(tip_index, offer_dir, book_entry)
+            offer_index, offer_dir, book_entry = *state_map.cdir_next(tip_index, offer_dir, book_entry)
             direct = true if !offer_index
           end
         end
