@@ -342,6 +342,13 @@ module XRBP
         # discard node type, and hash prefix
         tx = tx[13..-1]
 
+        parse_tx_inner(tx)
+      end
+
+      # Parse Inner Transaction from binary data
+      #
+      # @protected
+      def parse_tx_inner(tx)
         # get node length
         vl, offset = parse_vl(tx)
         node, _tx = tx.bytes[offset..vl+offset-1], tx.bytes[vl+offset..-1]

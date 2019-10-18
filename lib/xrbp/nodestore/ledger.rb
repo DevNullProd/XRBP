@@ -1,10 +1,13 @@
 require_relative './amendments'
 require_relative './fees'
+require_relative './parser'
+
 
 module XRBP
   module NodeStore
     class Ledger
       include Amendments
+      include Parser
 
       def initialize(args={})
         @db = args[:db]
@@ -17,8 +20,7 @@ module XRBP
       end
 
       def txs
-        # TODO parse_tx's out of SHAMap items
-        @txs ||= tx_map.to_a
+        @txs ||= tx_map.collect { |tx| parse_tx_inner(tx.data) }
       end
 
       private

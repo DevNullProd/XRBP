@@ -94,7 +94,9 @@ module XRBP
             raise "short TXN node" if s.size < 32
 
             tx_id = s[-32..-1]
-                s = s[0..-33]
+                # XXX: tx_id is last field in binary transaction, keep so
+                # it can be parsed w/ other fields later:
+                #s = s[0..-33]
 
             item = Item.new(:key => tx_id,
                            :data => s)
