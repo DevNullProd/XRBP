@@ -93,8 +93,8 @@ module XRBP
             # transaction with metadata
             raise "short TXN node" if s.size < 32
 
-            tx_id = s[-4..-1]
-                s = s[0...-4]
+            tx_id = s[-32..-1]
+                s = s[0..-33]
 
             item = Item.new(:key => tx_id,
                            :data => s)
