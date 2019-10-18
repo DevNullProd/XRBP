@@ -147,9 +147,7 @@ module XRBP
 
         rate = transfer_rate(output[:account])
 
-        balances = {}
-             ret = {:offers => []}
-
+           balances = {}
                done = false # set true when we cannot traverse anymore
              direct = true  # set true when we need to find next dir
           offer_dir = nil   # current directory being travred
@@ -249,13 +247,10 @@ module XRBP
 
               balances[owner_id] = owner_funds - owner_pays
 
-              # Add offer to return array
-              offers << offer
-
               # include all offers funded and unfunded
-              ret[:offers] << offer
-              ret[:quality] = dir_rate
-              ret[:owner_funds] = owner_funds if first_owner_offer
+              offer[:quality] = dir_rate
+              offer[:owner_funds] = owner_funds if first_owner_offer
+              offers << offer
 
             else
               puts "missing offer"
