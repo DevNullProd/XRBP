@@ -8,6 +8,8 @@ require_relative './shamap/tagged_cache'
 
 module XRBP
   class SHAMap
+    include Enumerable
+
     def initialize(args={})
             @db = args[:db]
        @version = args[:version]
@@ -18,6 +20,18 @@ module XRBP
       else
         @root = InnerNode.new :v2 => false
       end
+    end
+
+    # Invoke callback block w/ each sequential SHAMap item
+    # Implements Enumerable interface.
+    def each
+      current, stack = *peek_first_item
+      until current.nil?
+        yield current.item
+        current, stack = *peek_next_item(current.item.key, stack)
+      end
+
+      return self
     end
 
     # Return the next key in tree greater than
@@ -49,6 +63,41 @@ module XRBP
       leaf = find_key(key)
       return nil unless leaf
       leaf.peek_item
+    end
+
+    # Return node corresponding to first item in map
+    def peek_first_item
+      stack = []
+      node, stack = *first_below(@root, stack)
+      return nil unless node
+      return node, stack
+    end
+
+    # Return node corresponding to next sequential
+    # item in map
+    def peek_next_item(id, stack)
+      raise if stack.empty?
+      raise unless stack.last.first.leaf?
+      stack.pop
+
+      until stack.empty?
+        node, node_id = *stack.last
+        raise if node.leaf?
+
+        # Select next higher tree branch
+        inner = node
+        (node_id.select_branch(id) + 1).upto(15) { |b|
+          next if inner.empty_branch?(b)
+          node = descend_throw(inner, b)
+          leaf, stack = *first_below(node, stack, b)
+          raise unless leaf && leaf.leaf?
+          return leaf, stack
+        }
+
+        stack.pop
+      end
+
+      return nil
     end
 
     # Fetch node from database raising
@@ -288,7 +337,7 @@ module XRBP
     # @param node to evaluation
     # @param stack ancestor node stack
     # @param branch this node is on
-    def first_below(node, stack, branch)
+    def first_below(node, stack, branch=0)
       # Return node if node is a leaf
       if node.leaf?
         stack.push [node, node.peek_item.key]

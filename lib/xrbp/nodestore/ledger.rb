@@ -16,6 +16,11 @@ module XRBP
         end
       end
 
+      def txs
+        # TODO parse_tx's out of SHAMap items
+        @txs ||= tx_map.to_a
+      end
+
       private
 
       attr_reader :db, :hash
