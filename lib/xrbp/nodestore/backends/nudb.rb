@@ -76,6 +76,8 @@ module XRBP
                                       :value => val)
             yield iterator
           end
+
+          return self
         end
 
         private

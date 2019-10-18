@@ -67,6 +67,7 @@ module XRBP
           end
 
           iterator.close
+          return self
         end
       end # class RocksDB
     end # module Backends
