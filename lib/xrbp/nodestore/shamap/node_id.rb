@@ -1,6 +1,11 @@
 module XRBP
   class SHAMap
-    # Encapsulates node key to allow for tree traversal
+    # Encapsulates node key to allow for tree traversal.
+    #
+    # Provides branch extraction/generation logic.
+    # Since branch is between 0-15, only a nibble (4bits)
+    # are needed to store. Thus each char (8bits) can describe
+    # 2 tree branches
     class NodeID
       attr_reader :depth, :key
 
@@ -39,14 +44,17 @@ module XRBP
         @mask ||= masks[depth]
       end
 
+      # Return branch number of specified hash.
       def select_branch(hash)
         #if RIPPLE_VERIFY_NODEOBJECT_KEYS
         raise if depth >= 64
         raise if (hash.to_bn & mask.to_bn) != key.to_bn
         #end
 
+        # Extract hash byte at local node depth
         br = hash[depth / 2].ord
 
+        # Reduce to relevant nibble
         if (depth & 1) == 1
           br &= 0xf
         else
@@ -57,10 +65,13 @@ module XRBP
         br
       end
 
+      # Return NodeID for specified branch under this one.
       def child_node_id(branch)
         raise unless branch >= 0 && branch < 16
         raise unless depth < 64
 
+        # Copy local key and assign branch number to
+        # nibble in byte at local depth
         child = key.unpack("C*")
         child[depth/2] |= ((depth & 1) == 1) ? branch : (branch << 4)
 
