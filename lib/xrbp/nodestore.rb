@@ -6,7 +6,6 @@ require_relative './nodestore/ledger'
 
 require_relative './nodestore/protocol'
 
-require_relative './nodestore/sqldb'
 require_relative './nodestore/db'
 
 # optionally include:
