@@ -9,11 +9,16 @@ db = XRBP::NodeStore::Backends::RocksDB.new "/var/lib/rippled/rocksdb/rippledb.0
 #require 'xrbp/nodestore/backends/nudb'
 #db = XRBP::NodeStore::Backends::NuDB.new "/var/lib/rippled/nudb/"
 
-#ledger = "B506ADD630CB707044B4BFFCD943C1395966692A13DD618E5BD0978A006B43BD"
-#ledger = [ledger].pack("H*")
-#puts db.ledger(ledger)
+ledger = "32E073D7E4D722D956F7FDE095F756FBB86DC9CA487EB0D9ABF5151A8D88F912"
+ledger = [ledger].pack("H*")
+puts db.ledger(ledger)
 
-#account = "0001bf7468341666f1f47a95e0f4d88e68b5fc7d20d77437cb22954fbbfe6127"
-account = "02c46b3a4130d0a329c47f0da61b829aa5d1ae53c5817e475bcd794e5107be44"
-account = [account].pack("H*")
-puts db.account(account)
+gw1 = 'razqQKzJRdB4UxFPWf5NEpEG3WMkmwgcXA'
+iou1 = {:currency => 'XRP', :account => XRBP::Crypto.xrp_account}
+iou2 = {:currency => 'CNY', :account => gw1}
+nledger = XRBP::NodeStore::Ledger.new(:db => db, :hash => ledger)
+puts nledger.order_book iou1, iou2
+puts nledger.txs
+
+require 'xrbp/nodestore/sqldb'
+puts XRBP::NodeStore::SQLDB.new("/var/lib/rippled/").ledger_hash_for_seq(49340234)
