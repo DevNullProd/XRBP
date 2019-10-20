@@ -383,32 +383,32 @@ module XRBP
       ###
 
       TX_TYPES = {
-         -1 => :invalid,
-          0 => :payment,
-          1 => :escrow_create,
-          2 => :escrow_finish,
-          3 => :account_set,
-          4 => :escrow_cancel,
-          5 => :regular_key_set,
-          6 => :nickname_set,    #open
-          7 => :offer_create,
-          8 => :offer_cancel,
+         -1 => :Invalid,
+          0 => :Payment,
+          1 => :EscrowCreate,
+          2 => :EscrowFinish,
+          3 => :AccountSet,
+          4 => :EscrowCancel,
+          5 => :SetRegularKey,
+          6 => :NickNameSet,    #open
+          7 => :OfferCreate,
+          8 => :OfferCancel,
 
-          9 => :no_longer_used,
+          9 => :unused,
 
-         11 => :ticket_create,
-         12 => :ticket_cancel,
-         13 => :signer_list_set,
-         14 => :paychan_create,
-         15 => :paychan_fund,
-         16 => :paychan_claim,
-         17 => :check_create,
-         18 => :check_cash,
-         19 => :check_cancel,
-         20 => :deposit_preauth,
+         11 => :TicketCreate,
+         12 => :TicketCancel,
+         13 => :SignerListSet,
+         14 => :PaymentChannelCreate,
+         15 => :PaymentChannelFund,
+         16 => :PaymentChannelClaim,
+         17 => :CheckCreate,
+         18 => :CheckCash,
+         19 => :CheckCancel,
+         20 => :DepositPreauth,
 
-        100 => :amendment,
-        101 => :fee
+        100 => :EnableAmendment,
+        101 => :SetFee
       }
 
       # https://xrpl.org/transaction-results.html
