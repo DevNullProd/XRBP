@@ -157,6 +157,9 @@ module XRBP
         elsif e == :transaction_type
           return Format::TX_TYPES[value]
 
+        elsif e == :transaction_result
+          return Format::TX_RESULTS[value]
+
         elsif e == :ledger_entry_type
           return Format::LEDGER_ENTRY_TYPE_CODES[value.chr]
         end

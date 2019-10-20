@@ -411,6 +411,56 @@ module XRBP
         101 => :fee
       }
 
+      # https://xrpl.org/transaction-results.html
+      TX_RESULTS = {
+        # tec
+        # https://xrpl.org/tec-codes.html
+        # "Transaction failed, but it was applied to a ledger to apply the transaction cost.
+        #    They have numerical values in the range 100 to 199"
+        100 => :claim,
+        146 => :cryptocondition_error,
+        121 => :dir_full,
+        149 => :duplicate,
+        143 => :dest_tag_needed,
+        148 => :expired,
+        105 => :failed_processing,
+        137 => :frozen,
+        122 => :insuf_reserve_line,
+        123 => :insuf_reserve_offer,
+        141 => :insufficient_reserve,
+        144 => :internal,
+        147 => :invariant_failed,
+        142 => :need_master_key,
+        130 => :no_alternative_key,
+        134 => :no_auth,
+        124 => :no_dst,
+        125 => :no_dst_insuf_xrp,
+        140 => :no_entry,
+        133 => :no_issuer,
+        150 => :killed,
+        135 => :no_line,
+        126 => :no_line_insuf_reserve,
+        127 => :no_line_redundant,
+        139 => :no_permission,
+        131 => :no_regular_key,
+        138 => :no_target,
+        145 => :oversize,
+        132 => :owners,
+        128 => :path_dry,
+        101 => :path_partial,
+        129 => :unfunded,
+        102 => :unfunded_add,
+        104 => :unfunded_payment,
+        103 => :unfunded_offer,
+
+        # tef, tel, tem, ter transactions _not_
+        # applied to ledger
+
+        # tes
+        # https://xrpl.org/tes-success.html
+        0 => :success
+      }
+
       ###
 
       CURRENCY_CODE = Bistro.new([
