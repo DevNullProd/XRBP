@@ -21,4 +21,6 @@ puts nledger.order_book iou1, iou2
 puts nledger.txs
 
 require 'xrbp/nodestore/sqldb'
-puts XRBP::NodeStore::SQLDB.new("/var/lib/rippled/").ledger_hash_for_seq(49340234)
+sql = XRBP::NodeStore::SQLDB.new("/var/lib/rippled/nudb")
+puts sql.ledgers.hash_for_seq(49340234)
+puts sql.ledgers.count
