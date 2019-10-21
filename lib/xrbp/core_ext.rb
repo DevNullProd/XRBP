@@ -59,6 +59,10 @@ class Integer
     end
     b
   end
+
+  def to_int32
+    self & (2**32-1)
+  end
 end
 
 # @private

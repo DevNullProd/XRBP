@@ -19,7 +19,20 @@ module XRBP
         return STAmount.new(:issue => NodeStore.no_issue) if rate == 0
 
         mantissa = rate & ~(255 << (64 - 8))
-        exponent = (rate >> (64 - 8)) - 100
+
+        # FIXME: XXX: we subtract 97 in iou_amount on the fly below,
+        #             whereas in rippled it is subtracted when
+        #             parsing a serialized STAmount instance:
+        #             https://github.com/ripple/rippled/blob/fccb7e1c70549d2cf47800f9942171fb681b5648/src/ripple/protocol/impl/STAmount.cpp#L127
+        #
+        #             In other non-serialized-parsing cases such as here
+        #             we should store exponent as is but since we subtract
+        #             97 below, we need to add it here.
+        #
+        #             This should be changed to match rippled where the
+        #             mantissa and exponent are properly set in all cases
+        #             and the iou_amount method is updated to match rippled
+        exponent = (rate >> (64 - 8)).to_int32 - 100 + 97
 
         return STAmount.new(:issue    => NodeStore.no_issue,
                             :mantissa => mantissa,
