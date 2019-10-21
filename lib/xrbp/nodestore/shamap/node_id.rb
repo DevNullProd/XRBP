@@ -20,7 +20,7 @@ module XRBP
       # Used to calculate inner node hash for
       # tree level:
       #   inner node = lookup key & mask
-      def masks
+      def self.masks
         @masks ||= begin
           masks = Array.new(MASK_SIZE)
 
@@ -41,7 +41,7 @@ module XRBP
 
       # Return mask for current tree depth
       def mask
-        @mask ||= masks[depth]
+        @mask ||= self.class.masks[depth]
       end
 
       # Return branch number of specified hash.
