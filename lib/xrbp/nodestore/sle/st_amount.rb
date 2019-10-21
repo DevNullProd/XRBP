@@ -71,6 +71,19 @@ module XRBP
         (neg ? -1 : 1) * mantissa * 10 ** (exponent-97)
       end
 
+      def inspect
+        return "0" if zero?
+
+        i = issue.inspect
+        i = i == '' ? '' : "(#{i})"
+        (native? ? xrp_amount : iou_amount.to_f).to_s +
+        (native? ?         "" : i)
+      end
+
+      def to_s
+        inspect
+      end
+
       ###
 
       def +(v)

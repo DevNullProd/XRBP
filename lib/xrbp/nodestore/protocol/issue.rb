@@ -11,6 +11,17 @@ module XRBP
       def xrp?
         self == NodeStore.xrp_issue
       end
+
+      def inspect
+        c = currency == NodeStore.no_currency  ? ''     :
+            currency == NodeStore.xrp_currency ? 'XRP ' :
+                                         "#{currency} "
+
+        a = account == Crypto.no_account  ? '' :
+            account == Crypto.xrp_account ? '' :
+                                 "@#{account}"
+        "#{c}#{a}"
+      end
     end # class Issue
 
     def self.xrp_issue
