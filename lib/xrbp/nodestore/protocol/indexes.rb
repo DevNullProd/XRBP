@@ -45,6 +45,14 @@ module XRBP
         sha512.digest[0..31]
       end
 
+      # TODO: Account Owner Dir from id
+      def self.owner_dir(id)
+      end
+
+      # TODO: Offer Index for account id and seq
+      def self.offer_index(id, seq)
+      end
+
       # Trust line for account/iou
       def self.line(account, iou)
         account = Crypto.account_id(account)
@@ -66,10 +74,6 @@ module XRBP
         sha512 << Format.encode_currency(iou[:currency])
 
         sha512.digest[0..31]
-      end
-
-      # TODO: order book dir hash for ledger
-      def self.order_book_dir()
       end
 
       # Order book index for given input/output
