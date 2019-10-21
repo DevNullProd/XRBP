@@ -35,6 +35,12 @@ module XRBP
           @sql_db = sql_db
         end
 
+        def between(before, after)
+          @sql_db.ledger_ex.execute("select * ledgers where ClosingTime >= ? and ClosingTime <= ?",
+                                                                                before.to_xrp_time,
+                                                                                 after.to_xrp_time).collect { |row| from_db(row) }
+        end
+
         def hash_for_seq(seq)
           @sql_db.ledger_db.execute("select LedgerHash from ledgers where LedgerSeq = ?", seq).first.first
         end

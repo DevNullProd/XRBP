@@ -71,3 +71,10 @@ class Array
     fill(x, length...n)
   end
 end
+
+# @private
+class Time
+  def to_xrp_time
+    XRBP.to_xrp_time(self)
+  end
+end
