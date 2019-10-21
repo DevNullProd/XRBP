@@ -59,7 +59,7 @@ module XRBP
 
         private
 
-        def from_db(db)
+        def from_db(row)
           {:hash              => row[0],
            :seq               => row[1],
            :prev_hash         => row[2],
