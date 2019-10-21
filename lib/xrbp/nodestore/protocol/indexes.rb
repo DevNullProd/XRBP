@@ -4,9 +4,9 @@ module XRBP
     module Indexes
 
       def self.get_quality(base)
-        # FIXME: reverse to convert big to little endian,
+        # FIXME: assuming native platform is big endian,
         #        need to account for all platforms
-        base[-8..-1].reverse.to_bn
+        base[-8..-1].to_bn
       end
 
       def self.get_quality_next(base)
