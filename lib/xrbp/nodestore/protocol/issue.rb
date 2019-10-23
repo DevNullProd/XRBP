@@ -8,14 +8,18 @@ module XRBP
         @account  = account
       end
 
+      def to_h
+        {:currency => currency, :account => account}
+      end
+
       def xrp?
         self == NodeStore.xrp_issue
       end
 
       def inspect
-        c = currency == NodeStore.no_currency  ? ''     :
-            currency == NodeStore.xrp_currency ? 'XRP ' :
-                                         "#{currency} "
+        c = currency == NodeStore.no_currency  ? ''    :
+            currency == NodeStore.xrp_currency ? 'XRP' :
+                                         "#{currency}"
 
         a = account == Crypto.no_account  ? '' :
             account == Crypto.xrp_account ? '' :

@@ -57,6 +57,13 @@ module XRBP
         canonicalize
       end
 
+      def to_h
+        {:mantissa => mantissa,
+         :exponent => exponent,
+         :neg      => neg,
+         :issue    => issue.to_h}
+      end
+
       ###
 
       private
