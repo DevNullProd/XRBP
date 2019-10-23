@@ -140,7 +140,7 @@ module XRBP
         end
 
         raise "divide by zero" if v.zero?
-        return STAmount.new :issue => issue
+        return STAmount.new :issue => issue if zero?
 
         nm = mantissa
         dm = v.mantissa
