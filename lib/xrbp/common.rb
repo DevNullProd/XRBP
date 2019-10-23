@@ -17,6 +17,6 @@ module XRBP
   # Convert local time to XRP Time
   def self.to_xrp_time(local_time)
     return nil if local_time.nil?
-    local_time.to_i + 946684800
+    local_time.to_i - 946684800
   end
 end # module XRBP
