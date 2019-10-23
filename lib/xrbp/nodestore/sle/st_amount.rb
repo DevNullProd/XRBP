@@ -1,6 +1,18 @@
 module XRBP
   module NodeStore
     # Serialized Amount Representation.
+    #
+    # From rippled docs:
+    #   Internal form:
+    #     1: If amount is zero, then value is zero and offset is -100
+    #     2: Otherwise:
+    #        legal offset range is -96 to +80 inclusive
+    #        value range is 10^15 to (10^16 - 1) inclusive
+    #        amount = value * [10 ^ offset]
+    #
+    #   Wire form:
+    #     High 8 bits are (offset+142), legal range is, 80 to 22 inclusive
+    #     Low 56 bits are value, legal range is 10^15 to (10^16 - 1) inclusive
     class STAmount
 
       # DEFINES FROM STAmount.h
@@ -47,7 +59,9 @@ module XRBP
       end
 
       def clear
-        # see: https://github.com/ripple/rippled/blob/b53fda1e1a7f4d09b766724274329df1c29988ab/src/ripple/protocol/STAmount.h#L224
+        # From rippled docs:
+        #   The -100 is used to allow 0 to sort less than a small positive values
+        #   which have a negative exponent.
         @exponent = native? ? 0 : -100
 
         @neg = false

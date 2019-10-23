@@ -129,10 +129,9 @@ module XRBP
         count
       end
 
-      # Return TransferRate configured for IOU,
-      # the percent of an amount sent that is charged
-      # to the sender and paid to the issuer.o
-      # https://xrpl.org/transfer-fees.html
+      # Return TransferRate configured for IOU
+      #
+      # @see {Rate}
       def transfer_rate(issuer)
         sle = state_map.read(Indexes::account(issuer))
 
