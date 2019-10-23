@@ -65,6 +65,10 @@ class Integer
   end
 
   alias :to_int :to_int32
+
+  def from_xrp_time
+    XRBP.from_xrp_time(self)
+  end
 end
 
 # @private
