@@ -17,9 +17,14 @@ module XRBP
 
       # DEFINES FROM STAmount.h
 
+      MIN_OFFSET = -96;
+      MAX_OFFSET = 80;
+
       MIN_VAL    = 1000000000000000
+      MAX_VAL    = 9999999999999999
       NOT_NATIVE = 0x8000000000000000
       POS_NATIVE = 0x4000000000000000
+      MAX_NATIVE = 100000000000000000
 
       attr_reader :mantissa, :exponent, :neg
       attr_accessor :issue
@@ -48,10 +53,74 @@ module XRBP
         @mantissa = args[:mantissa] || 0
         @exponent = args[:exponent] || 0
         @neg      = !!args[:neg]
+
+        canonicalize
       end
 
+      ###
+
+      private
+
+      def canonicalize
+        if native?
+          if @mantissa == 0
+            @exponent = 0
+            @neg = false
+            return
+          end
+
+          while @exponent < 0
+            @mantissa /= 10
+            @exponent += 1
+          end
+
+          while @exponent > 0
+            @mantissa *= 10
+            @exponent -= 1
+          end
+
+          raise if @mantissa > MAX_NATIVE
+          return
+        end
+
+        if @mantissa == 0
+          @exponent = -100
+          @negative = false
+          return
+        end
+
+        while ((@mantissa < MIN_VAL) && (@exponent > MIN_OFFSET))
+          @mantissa *= 10;
+          @exponent -= 1
+        end
+
+        while (@mantissa > MAX_VAL)
+          raise "value overflow" if (@exponent >= MAX_OFFSET)
+
+          @mantissa /= 10
+          @exponent += 1
+        end
+
+        if @exponent < MIN_OFFSET || @mantissa < MIN_VAL
+          @mantissa = 0;
+          @neg      = false;
+          @exponent = -100;
+          return
+        end
+
+        raise "value overflow" if (@exponent > MAX_OFFSET)
+
+        raise unless @mantissa == 0 || (@mantissa >= MIN_VAL    && @mantissa <= MAX_VAL)
+        raise unless @mantissa == 0 || (@exponent >= MIN_OFFSET && @exponent <= MAX_OFFSET)
+        raise unless @mantissa != 0 ||  @exponent != -100
+      end
+
+      public
+
+      ###
+
       def native?
-        @issue.xrp?
+        @issue && @issue.xrp?
       end
 
       def zero?
@@ -170,7 +239,7 @@ module XRBP
 
         # see note: https://github.com/ripple/rippled/blob/b53fda1e1a7f4d09b766724274329df1c29988ab/src/ripple/protocol/impl/STAmount.cpp#L1075
         STAmount.new :issue => issue,
-                     :mantissa => (nm * 10**17)/dm,
+                     :mantissa => (nm * 10**17)/dm + 5,
                      :exponent => (ne - de - 17),
                      :neg      => (neg != v.neg)
       end
@@ -178,7 +247,7 @@ module XRBP
       def *(o)
         return STAmount.new :issue => issue if zero? || o.zero?
 
-        if native?
+        if native? && o.native?
           min = sn_value < o.sn_value ?   sn_value : o.sn_value
           max = sn_value < o.sn_value ? o.sn_value :   sn_value
 
@@ -206,7 +275,7 @@ module XRBP
 
         # see note: https://github.com/ripple/rippled/blob/b53fda1e1a7f4d09b766724274329df1c29988ab/src/ripple/protocol/impl/STAmount.cpp#L1131
         STAmount.new :issue => issue,
-                     :mantissa => (m1 * m2)/(10**14),
+                     :mantissa => (m1 * m2)/(10**14) + 7,
                      :exponent => (e1 + e2 + 14),
                      :neg      => (neg != o.neg)
       end
