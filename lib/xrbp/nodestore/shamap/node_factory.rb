@@ -1,6 +1,8 @@
 module XRBP
   class SHAMap
     module NodeFactory
+      # Create a new node whose type is specified in the binary prefix.
+      #
       # See rippled::SHAMapAbstractNode::make
       def make(node, seq, format, hash, hash_valid)
         node_id = NodeID.new
@@ -22,6 +24,7 @@ module XRBP
 
           s = node[4..-1]
 
+          # Transaction node (no metadata)
           if prefix == NodeStore::Format::HASH_PREFIXES[:tx_id]
             sha512  = OpenSSL::Digest::SHA512.new
             sha512 <<  NodeStore::Format::HASH_PREFIXES[:tx_id]
@@ -38,6 +41,7 @@ module XRBP
 
             return TreeNode.new(tree_node)
 
+          # Leaf node in state tree containing data (account info, order, etc)
           elsif prefix == NodeStore::Format::HASH_PREFIXES[:leaf_node]
             raise "short PLN node" if s.size < 32
 
@@ -55,6 +59,7 @@ module XRBP
 
             return TreeNode.new(tree_node)
 
+          # Inner tree node referencing other nodes
           elsif (prefix == NodeStore::Format::HASH_PREFIXES[:inner_node]) ||
                 (prefix == NodeStore::Format::HASH_PREFIXES[:inner_node_v2])
             len = s.size
@@ -89,8 +94,8 @@ module XRBP
 
             return ret
 
+          # Transaction node (with metadata)
           elsif prefix == NodeStore::Format::HASH_PREFIXES[:tx_node]
-            # transaction with metadata
             raise "short TXN node" if s.size < 32
 
             tx_id = s[-32..-1]
