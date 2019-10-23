@@ -242,7 +242,7 @@ module XRBP
                 output[:account] != owner_id            # offer owner not issuing own funds
                   # Need to charge a transfer fee to offer owner.
                   offer_rate = rate
-                  owner_funds_limit = owner_funds / offer_rate.rate
+                  owner_funds_limit = owner_funds / offer_rate.to_amount
               end
 
               # Check if owner has enough funds to pay it all
@@ -272,7 +272,8 @@ module XRBP
               owner_pays = (Rate.parity == offer_rate) ?
                                      taker_gets_funded :
                                            [owner_funds,
-                         taker_gets_funded * offer_rate].min
+                                      taker_gets_funded *
+                                   offer_rate.to_amount].min
 
               # Update balance cache w/ new owner balance
               balances[owner_id] = owner_funds - owner_pays
