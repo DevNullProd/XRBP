@@ -219,7 +219,7 @@ module XRBP
         sle = STAmount.new(:issue    => Issue.new(currency, issuer),
                            :neg      => neg,
                            :mantissa => mant,
-                           :exponent => exp)
+                           :exponent => exp - 97)
 
         return sle, data
       end
