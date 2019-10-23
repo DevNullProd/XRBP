@@ -2,8 +2,12 @@ module XRBP
   module NodeStore
     # Serialized Amount Representation.
     class STAmount
-      # see: https://github.com/ripple/rippled/blob/b53fda1e1a7f4d09b766724274329df1c29988ab/src/ripple/protocol/STAmount.h#L67
-      MIN_VAL = 1000000000000000
+
+      # DEFINES FROM STAmount.h
+
+      MIN_VAL    = 1000000000000000
+      NOT_NATIVE = 0x8000000000000000
+      POS_NATIVE = 0x4000000000000000
 
       attr_reader :mantissa, :exponent, :neg
       attr_accessor :issue

@@ -193,21 +193,28 @@ module XRBP
       # Parse 'Amount' data type from binary data.
       #
       # @see https://developers.ripple.com/currency-formats.html
+      # @see STAmount(SerialIter& sit, SField const& name);
       #
       # @protected
       def parse_amount(data)
         amount = data[0..7].unpack("Q>").first
-           xrp = amount < 0x8000000000000000
 
-        # FIXME : is sign/neg right (?)
+        # native eg, xrp
+        is_xrp = (amount & STAmount::NOT_NATIVE) == 0
+        if is_xrp
+          is_pos = (amount & STAmount::POS_NATIVE) != 0
+          return STAmount.new(:issue    => NodeStore.xrp_issue,
+                              :mantissa => amount & ~STAmount::POS_NATIVE), data[8..-1] if is_pos
 
-        return STAmount.new(:issue    => NodeStore.xrp_issue,
-                            :mantissa => amount & 0x3FFFFFFFFFFFFFFF), data[8..-1] if xrp
+          return STAmount.new(:issue    => NodeStore.xrp_issue,
+                              :mantissa => amount,
+                              :neg      => true), data[8..-1]
+        end
 
-        sign = (amount & 0x4000000000000000) >> 62 # 0 = neg / 1 = pos
-         neg = (sign == 0)
-         exp = (amount & 0x3FC0000000000000) >> 54
-        mant = (amount & 0x003FFFFFFFFFFFFF)
+        #sign = (amount & 0x4000000000000000) >> 62 # 0 = neg / 1 = pos
+        # neg = (sign == 0)
+        # exp = (amount & 0x3FC0000000000000) >> 54
+        #mant = (amount & 0x003FFFFFFFFFFFFF)
 
         data = data[8..-1]
         currency = Format::CURRENCY_CODE.decode(data)
@@ -216,12 +223,25 @@ module XRBP
         data = data[Format::CURRENCY_CODE.size..-1]
         issuer, data = parse_account(data, 20)
 
-        sle = STAmount.new(:issue    => Issue.new(currency, issuer),
-                           :neg      => neg,
-                           :mantissa => mant,
-                           :exponent => exp - 97)
+        issue = Issue.new(currency, issuer)
 
-        return sle, data
+         exp = (amount >> (64 - 10)).to_int
+        mant = (amount & ~(1023 << (64 - 10)))
+
+        if mant
+          neg = (exp & 256) == 0
+          exp = (exp & 255) - 97
+
+          sle = STAmount.new(:issue    => issue,
+                             :neg      => neg,
+                             :mantissa => mant,
+                             :exponent => exp)
+
+          return sle, data
+        end
+
+        raise unless exp == 512
+        return STAmount.new(:issue => issue)
       end
 
       # Parse 'Account' data type from binary data.

@@ -63,6 +63,8 @@ class Integer
   def to_int32
     self & (2**32-1)
   end
+
+  alias :to_int :to_int32
 end
 
 # @private
