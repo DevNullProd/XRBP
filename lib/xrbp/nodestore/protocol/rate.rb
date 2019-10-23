@@ -13,7 +13,7 @@ module XRBP
       end
 
       def to_amount
-        STAmount.new :issue    => Issue.no_issue,
+        STAmount.new :issue    => NodeStore.no_issue,
                      :mantissa => rate,
                      :exponent =>   -9
       end
