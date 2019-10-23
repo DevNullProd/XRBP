@@ -36,9 +36,10 @@ module XRBP
         end
 
         def between(before, after)
-          @sql_db.ledger_ex.execute("select * ledgers where ClosingTime >= ? and ClosingTime <= ?",
-                                                                                before.to_xrp_time,
-                                                                                 after.to_xrp_time).collect { |row| from_db(row) }
+          @sql_db.ledger_db.execute("select * from ledgers where ClosingTime >= ? and ClosingTime <= ?",
+                                                                                     before.to_xrp_time,
+                                                                                      after.to_xrp_time)
+                           .collect { |row| from_db(row) }
         end
 
         def hash_for_seq(seq)
@@ -52,9 +53,19 @@ module XRBP
         alias :count :size
 
         def each
-          @sql_db.ledger_db.execute("select * from ledgers").each do |row|
-            yield from_db(row)
+          all.each do |row|
+            yield row
           end
+        end
+
+        def last
+          all.last
+        end
+
+        # TODO: remove memoization, define first(n), last(n) methods
+        def all
+          @all ||= @sql_db.ledger_db.execute("select * from ledgers order by LedgerSeq asc")
+                                    .collect { |row| from_db(row) }
         end
 
         private
@@ -64,8 +75,8 @@ module XRBP
            :seq               => row[1],
            :prev_hash         => row[2],
            :total_coins       => row[3],
-           :closing_time      => row[4],
-           :prev_closing_time => row[5],
+           :closing_time      => row[4].from_xrp_time,
+           :prev_closing_time => row[5].from_xrp_time,
            :close_time_res    => row[6],
            :close_flags       => row[7],
            :account_set_hash  => row[8],
