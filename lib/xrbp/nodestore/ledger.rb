@@ -43,12 +43,16 @@ module XRBP
         @fees ||= Fees.new
       end
 
+      # Returns boolean indicating if specified account
+      # is flagged as globally frozen
       def global_frozen?(account)
         return false if account == Crypto.xrp_account
         sle = state_map.read(Indexes::account(account))
         return sle && sle.flag?(:global_freeze)
       end
 
+      # Returns boolean indicating if specific account
+      # has frozen trust-line for specified IOU
       def frozen?(account, iou)
         return false if iou[:currency] == 'XRP'
 
@@ -62,6 +66,7 @@ module XRBP
                                                    :low_freeze)
       end
 
+      # Return IOU balance which owner account holds
       def account_holds(owner_id, iou)
         return xrp_liquid(owner_id, 0) if iou[:currency] == 'XRP'
         sle = state_map.read(Indexes::line(owner_id, iou))
@@ -72,6 +77,7 @@ module XRBP
         balance_hook(amount)
       end
 
+      # Returns available (liquid) XRP account holds
       def xrp_liquid(account, owner_count_adj)
         sle = state_map.read(Indexes::account(account))
         return STAmount.zero unless sle
@@ -122,8 +128,13 @@ module XRBP
         count
       end
 
+      # Return TransferRate configured for IOU,
+      # the percent of an amount sent that is charged
+      # to the sender and paid to the issuer.o
+      # https://xrpl.org/transfer-fees.html
       def transfer_rate(issuer)
         sle = state_map.read(Indexes::account(issuer))
+
         return Rate.new sle.field(:uint32,
                                   :transfer_rate) if sle &&
                                                      sle.field?(:transfer_rate)
@@ -134,6 +145,10 @@ module XRBP
 
       public
 
+      # TODO: helper method to get first funded high quailty
+      #       offer from order book. Also market depth helper
+
+      # Return all offers for the given input/output currency pair
       def order_book(input, output)
         offers = []
 
@@ -145,6 +160,7 @@ module XRBP
         global_freeze = global_frozen?(output[:account]) ||
                         global_frozen?(input[:account])
 
+        # transfer rate multipled to offer output to pay issuer
         rate = transfer_rate(output[:account])
 
            balances = {}
@@ -180,28 +196,32 @@ module XRBP
             # Read offer from db and process
             sle_offer = state_map.read(offer_index)
             if sle_offer
+              # Direct info from nodestore offer
                 owner_id = sle_offer.account_id(:account)
               taker_gets = sle_offer.amount(:taker_gets)
               taker_pays = sle_offer.amount(:taker_pays)
 
-                    owner_funds = nil
-              first_owner_offer = true
+              # Owner / Output Calculation
+                    owner_funds = nil  # how much of offer output the owner has
+              first_owner_offer = true # owner_funds returned w/ first owner offer
 
+              # issuer is offering it's own IOU, fully funded
               if output[:account] == owner_id
-                # issuer is offering it's own IOU, fully funded
                 owner_funds = taker_gets
 
+              # all offers not ours are unfunded
               elsif global_freeze
-                # all offers not ours are unfunded
                 owner_funds.clear(output)
 
               else
+                # if we have owner funds cached
                 if balances[owner_id]
                   owner_funds = balances[owner_id]
                   first_owner_offer = false
 
+                # did not find balance in cache
                 else
-                  # did not find balance in table
+                  # lookup from nodestore
                   owner_funds = account_holds(owner_id, output)
 
                   # treat negative funds as zero
@@ -209,11 +229,12 @@ module XRBP
                 end
               end
 
-              offer = Hash[sle_offer.fields]
-              taker_gets_funded = nil
-              owner_funds_limit = owner_funds
-              offer_rate = Rate.parity
+              offer = Hash[sle_offer.fields]   # copy the offer fields to return
+              taker_gets_funded = nil          # how much offer owner will actually be able to fund
+              owner_funds_limit = owner_funds  # how much the offer owner has limited by the output transfer fee
+              offer_rate = Rate.parity         # offer base output transfer rate
 
+              # Check if transfer fee applies,
               if            rate != Rate.parity      && # transfer fee
                        # TODO: provide support for 'taker_id' rpc param:
                        #taker_id != output[:account] && # not taking offers of own IOUs
@@ -223,15 +244,18 @@ module XRBP
                   owner_funds_limit = owner_funds / offer_rate.rate
               end
 
-
+              # Check if owner has enough funds to pay it all
               if owner_funds_limit >= taker_gets
                 # Sufficient funds no shenanigans.
                 taker_gets_funded = taker_gets
 
               else
-                # Only provide, if not fully funded.
+                # Only set these fields, if not fully funded.
                 taker_gets_funded = owner_funds_limit
                 offer[:taker_gets_funded] = taker_gets_funded
+
+                # the account that takes the offer will need to
+                # pay the 'gets' amount actually funded times the dir_rate (quality)
                 offer[:taker_pays_funded] = [taker_pays,
                                              taker_gets_funded *
                                                       dir_rate].min
@@ -240,12 +264,19 @@ module XRBP
                 offer[:taker_pays_funded].issue = taker_pays.issue
               end
 
+              # Calculate how much owner will pay after this offer,
+              # if no transfer fee, then the amount funded,
+              # else the minimum of what the owner has or the
+              # amount funded w/ transfer fee
               owner_pays = (Rate.parity == offer_rate) ?
                                      taker_gets_funded :
                                            [owner_funds,
                          taker_gets_funded * offer_rate].min
 
+              # Update balance cache w/ new owner balance
               balances[owner_id] = owner_funds - owner_pays
+
+              # Set additional params and store the offer
 
               # include all offers funded and unfunded
               offer[:quality] = dir_rate

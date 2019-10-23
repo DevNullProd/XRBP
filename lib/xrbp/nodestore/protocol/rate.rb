@@ -7,6 +7,7 @@ module XRBP
         @rate = rate
       end
 
+      # Rate signifying a 1:1 exchange
       def self.parity
         @parity ||= Rate.new(QUALITY_ONE)
       end
