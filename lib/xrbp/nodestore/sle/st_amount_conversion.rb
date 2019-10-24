@@ -72,6 +72,8 @@ module XRBP
           raise unless @mantissa != 0 ||  @exponent != -100
         end
 
+        public
+
         def clear
           # From rippled docs:
           #   The -100 is used to allow 0 to sort less than a small positive values
