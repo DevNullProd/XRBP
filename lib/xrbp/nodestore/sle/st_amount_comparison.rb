@@ -3,6 +3,8 @@ module XRBP
     class STAmount
       module Comparison
         def <(o)
+          return self < STAmount.new(:mantissa => o) if o.kind_of?(Numeric)
+
           return neg if neg && !o.neg
           if mantissa == 0
             return false if o.neg
@@ -27,12 +29,16 @@ module XRBP
         end
 
         def ==(o)
+          return self == STAmount.new(:mantissa => o) if o.kind_of?(Numeric)
+
                neg == o.neg      &&
           mantissa == o.mantissa &&
           exponent == o.exponent
         end
 
         def <=>(o)
+          return self <=> STAmount.new(:mantissa => o) if o.kind_of?(Numeric)
+
           return  0 if self == o
           return -1 if self  < o
           return  1 if self  > o

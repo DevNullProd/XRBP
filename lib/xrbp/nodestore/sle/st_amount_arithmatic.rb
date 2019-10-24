@@ -3,6 +3,8 @@ module XRBP
     class STAmount
       module Arithmatic
         def +(v)
+          return self + STAmount.new(:mantissa => v) if v.kind_of?(Numeric)
+
           e1 = exponent
           e2 = v.exponent
 
@@ -37,6 +39,8 @@ module XRBP
         end
 
         def /(v)
+          return self / STAmount.new(:mantissa => v) if v.kind_of?(Numeric)
+
           if v.is_a?(Rate)
             return self if v == Rate.parity
             return self / v.to_amount
@@ -73,6 +77,8 @@ module XRBP
         end
 
         def *(o)
+          return self * STAmount.new(:mantissa => o) if o.kind_of?(Numeric)
+
           return STAmount.new :issue => issue if zero? || o.zero?
 
           if native? && o.native?
