@@ -41,6 +41,60 @@ shared_examples "ledger access" do |opts={}|
 
   let(:order_book) { [order1, order2] }
 
+  it "provides access to ledger state map"
+
+  it "provides access to ledger tx map"
+
+  it "provides access to ledger info"
+
+  describe "#global_frozen?" do
+    context "account globally frozen in ledger" do
+      it "returns true"
+    end
+
+    context "account not globally frozen in ledger" do
+      it "returns false"
+    end
+  end
+
+  describe "#frozen?" do
+    context "account trust line frozen" do
+      it "returns true"
+    end
+
+    context "account trust line not frozen" do
+      it "returns false"
+    end
+  end
+
+  describe "#account_holds" do
+    it "returns balance of account iou trust line"
+
+    context "currency == 'XRP'" do
+      it "returns liquid xrp"
+    end
+  end
+
+  describe "#xrp_liquid" do
+    context "account not found" do
+      it "returns zero amount minus reserve"
+    end
+
+    it "returns xrp account balance minus reserve"
+
+    context "fix1141 in effect" do
+      it "confines owner account"
+    end
+  end
+
+  describe "#confine_owner_account" do
+    it "adjusts and returns amount"
+  end
+
+  describe "#transfer_rate" do
+    it "returns transfer rate for specified issuer"
+  end
+
   it "provides access to order book" do
     actual = ledger.order_book(iou1, iou2)
     expect(actual).to eq(order_book)
