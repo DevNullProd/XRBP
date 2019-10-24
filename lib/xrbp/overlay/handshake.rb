@@ -44,7 +44,7 @@ module XRBP
           sf = sha512.digest(sf)
           pf = sha512.digest(pf)
           shared = sf.to_bn ^ pf.to_bn
-          shared = shared.bytes.reverse.pack("C*")
+          shared = shared.byte_string
           shared = sha512.digest(shared)[0..31]
 
           shared = Crypto::Key.sign_digest(node, shared)
