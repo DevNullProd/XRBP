@@ -60,6 +60,10 @@ class Integer
     b
   end
 
+  def byte_string
+    bytes.reverse.pack("C*")
+  end
+
   def to_int32
     self & (2**32-1)
   end

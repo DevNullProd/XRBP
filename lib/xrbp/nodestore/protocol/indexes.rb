@@ -11,8 +11,7 @@ module XRBP
 
       def self.get_quality_next(base)
         nxt = "10000000000000000".to_i(16)
-        (base.to_bn + nxt).bytes
-                          .reverse.pack("C*")
+        (base.to_bn + nxt).byte_string
       end
 
       ###
