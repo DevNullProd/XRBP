@@ -24,8 +24,8 @@ module XRBP
 
       # DEFINES FROM STAmount.h
 
-      MIN_OFFSET = -96;
-      MAX_OFFSET = 80;
+      MIN_OFFSET = -96
+      MAX_OFFSET = 80
 
       MIN_VAL    = 1000000000000000
       MAX_VAL    = 9999999999999999

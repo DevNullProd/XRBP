@@ -192,8 +192,23 @@ module XRBP
 
       # Parse 'Amount' data type from binary data.
       #
+      # Stored internally in 64 bits:
+      # - Bit 1 = 0 for XRP, 1 for IOU
+      # - Bit 2 = sign, 0 for negative, 1 for positive
+      #
+      # For XRP:
+      # - Remaining bits = value in drops
+      #
+      # For IOU:
+      # - Next 8 bits = Exponent
+      # - Next 54 bits = Mantissa
+      # Where value = mantissa * (10 ^ exponent)
+      # Note: 97 is added to exponent when serializing and subtracted when parsing so
+      #       that effective nominal exponent is always in range of -96 to 80
+      #
       # @see https://developers.ripple.com/currency-formats.html
       # @see STAmount(SerialIter& sit, SField const& name);
+      # @see {STAmount#from_wire}
       #
       # @protected
       def parse_amount(data)
@@ -210,11 +225,6 @@ module XRBP
                               :mantissa => amount,
                               :neg      => true), data[8..-1]
         end
-
-        #sign = (amount & 0x4000000000000000) >> 62 # 0 = neg / 1 = pos
-        # neg = (sign == 0)
-        # exp = (amount & 0x3FC0000000000000) >> 54
-        #mant = (amount & 0x003FFFFFFFFFFFFF)
 
         data = data[8..-1]
         currency = Format::CURRENCY_CODE.decode(data)
