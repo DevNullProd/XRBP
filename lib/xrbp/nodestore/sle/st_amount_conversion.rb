@@ -2,6 +2,102 @@ module XRBP
   module NodeStore
     class STAmount
       module Conversion
+        module ClassMethods
+          # @see {NodeStore::Parser::parse_amount}
+          def from_wire(data)
+            native = (data &  STAmount::NOT_NATIVE) == 0
+               neg = (data & ~STAmount::NOT_NATIVE &  STAmount::POS_NATIVE) == 0
+             value = (data & ~STAmount::NOT_NATIVE & ~STAmount::POS_NATIVE)
+
+            if native
+              STAmount.new :issue => NodeStore.xrp_issue,
+                           :neg   => neg,
+                           :mantissa => value
+            else
+               exp = (value >> 54) - 97
+              mant = value & 0x3fffffffffffff
+              STAmount.new :neg => neg,
+                      :exponent => exp,
+                      :mantissa => mant
+            end
+          end
+
+          # Convert string to STAmount
+          #
+          # @see STAmount#amountFromString (in rippled)
+          def parse(str, issue=nil)
+            match = "^"+                      # the beginning of the string
+                    "([-+]?)"+                # (optional) + or - character
+                    "(0|[1-9][0-9]*)"+        # a number (no leading zeroes, unless 0)
+                    "(\\.([0-9]+))?"+         # (optional) period followed by any number
+                    "([eE]([+-]?)([0-9]+))?"+ # (optional) E, optional + or -, any number
+                    "$"
+            match = Regexp.new(match)
+            match = str.match(match)
+            raise "Number '#{str}' is not valid" unless match
+
+            # Match fields:
+            #
+            #   0 = whole input
+            #   1 = sign
+            #   2 = integer portion
+            #   3 = whole fraction (with '.')
+            #   4 = fraction (without '.')
+            #   5 = whole exponent (with 'e')
+            #   6 = exponent sign
+            #   7 = exponent number
+            raise "Number '#{str}' is overlong" if (match[2].length +
+                                                    match[4].length) > 32
+
+            neg = !!match[1] && match[1] == '-'
+
+            raise "XRP must be specified in integral drops" if issue && issue.xrp? && !!match[3]
+
+            mantissa = 0
+            exponent = 0
+
+            if !match[4]
+              # integral only
+              mantissa = match[2].to_i
+
+            else
+              # integer and fraction
+              mantissa = (match[2] + match[4]).to_i
+              exponent = -(match[4].length)
+            end
+
+            if !!match[5]
+              # exponent
+              if match[6] && match[6] == '-'
+                exponent -= match[7].to_i
+              else
+                exponent += match[7].to_i
+              end
+            end
+
+            return STAmount.new :issue => issue,
+                             :mantissa => mantissa,
+                             :exponent => exponent,
+                                  :neg => neg
+          end
+        end
+
+        def self.included(base)
+          base.extend(ClassMethods)
+        end
+
+        # Encode STAmount into binary format
+        def to_wire
+          xrp_bit = ((native? ? 0 : 1) << 63)
+          neg_bit = ((   neg  ? 0 : 1) << 62)
+          value_bits = native? ? mantissa :
+                    (((exponent+97) << 54) + mantissa)
+
+          xrp_bit + neg_bit + value_bits
+        end
+
+        ###
+
         def to_h
           {:mantissa => mantissa,
            :exponent => exponent,
