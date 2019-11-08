@@ -1,6 +1,23 @@
 describe XRBP::NodeStore::STAmount do
   it "is negatable"
 
+  it "is convertable to/from wire format" do
+    v = 1000000000000
+    s = described_class.new(:mantissa => v)
+    expect(described_class.from_wire(s.to_wire).to_h).to eq(s.to_h)
+
+    s = described_class.new(:mantissa => v,
+                               :issue => XRBP::NodeStore.xrp_issue)
+    expect(described_class.from_wire(s.to_wire).to_h).to eq(s.to_h)
+  end
+
+  it "can be parsed from string" do
+    s = "12345.6789"
+    expect(described_class.parse(s).iou_amount.to_f).to eq(s.to_f)
+
+    expect { described_class.parse("whatever") }.to raise_error("Number 'whatever' is not valid")
+  end
+
   context "canonicalize" do
     context "native amount" do
       context "zero mantissa" do
