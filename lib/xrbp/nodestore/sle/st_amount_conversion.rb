@@ -46,8 +46,9 @@ module XRBP
             #   5 = whole exponent (with 'e')
             #   6 = exponent sign
             #   7 = exponent number
-            raise "Number '#{str}' is overlong" if (match[2].length +
-                                                    match[4].length) > 32
+
+            raise "Number '#{str}' is overlong" if ((match[2] || "").length +
+                                                    (match[4] || "").length) > 32
 
             neg = !!match[1] && match[1] == '-'
 
