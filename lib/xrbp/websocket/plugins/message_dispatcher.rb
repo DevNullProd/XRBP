@@ -134,7 +134,8 @@ module XRBP
         end
 
         def cancel_all_messages
-          messages.each { |msg|
+          # copy array as we modify original during iteration
+          Array.new(messages).each { |msg|
             cancel_message(msg)
           }
         end
