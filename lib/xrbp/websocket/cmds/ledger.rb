@@ -5,21 +5,21 @@ module XRBP
       #
       # https://developers.ripple.com/ledger.html
       class Ledger < Command
-        attr_accessor :id, :args
+        attr_accessor :ledger_index, :args
 
-        def initialize(id=nil, args={})
-          @id = id
+        def initialize(ledger_index=nil, args={})
+          @ledger_index = ledger_index
           @args = args
           super(to_h)
         end
 
-        def id?
-          !!id
+        def ledger_index?
+          !!ledger_index
         end
 
         def to_h
           h = args.merge(:command => :ledger)
-          h['ledger_index'] = id if id?
+          h['ledger_index'] = ledger_index if ledger_index?
           return h
         end
       end
