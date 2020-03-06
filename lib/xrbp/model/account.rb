@@ -155,7 +155,7 @@ module XRBP
       #   to use to retrieve account info
       def info(opts={}, &bl)
         set_opts(opts)
-        connection.cmd(WebSocket::Cmds::AccountInfo.new(id, full_opts), &bl)
+        connection.cmd(WebSocket::Cmds::AccountInfo.new(id, full_opts.except(:id)), &bl)
       end
 
       # Retrieve account objects via WebSocket::Connection
@@ -165,7 +165,7 @@ module XRBP
       #   to use to retrieve account objects
       def objects(opts={}, &bl)
         set_opts(opts)
-        connection.cmd(WebSocket::Cmds::AccountObjects.new(id, full_opts), &bl)
+        connection.cmd(WebSocket::Cmds::AccountObjects.new(id, full_opts.except(:id)), &bl)
       end
 
       # Retrieve account username via WebClient::Connection

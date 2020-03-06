@@ -17,7 +17,7 @@ module XRBP
       #   to use to retrieve ledger
       def sync(opts={}, &bl)
         set_opts(opts)
-        connection.cmd(WebSocket::Cmds::Ledger.new(id, full_opts), &bl)
+        connection.cmd(WebSocket::Cmds::Ledger.new(id, full_opts.except(:id)), &bl)
       end
 
       # Subscribe to ledger stream via WebSocket::Connection
