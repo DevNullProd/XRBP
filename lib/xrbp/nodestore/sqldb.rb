@@ -36,18 +36,26 @@ module XRBP
         end
 
         def between(before, after)
-          @sql_db.ledger_db.execute("select * from ledgers where ClosingTime >= ? and ClosingTime <= ?",
+          @sql_db.ledger_db.execute("select * from Ledgers where ClosingTime >= ? and ClosingTime <= ?",
                                                                                      before.to_xrp_time,
                                                                                       after.to_xrp_time)
                            .collect { |row| from_db(row) }
         end
 
         def hash_for_seq(seq)
-          @sql_db.ledger_db.execute("select LedgerHash from ledgers where LedgerSeq = ?", seq).first.first
+          @sql_db.ledger_db.execute("select LedgerHash from Ledgers where LedgerSeq = ?", seq).first.first
         end
 
         def size
-          @sql_db.ledger_db.execute("select count(*) from ledgers").first.first
+          @sql_db.ledger_db.execute("select count(ROWID) from Ledgers").first.first
+        end
+
+        def first
+          @sql_db.ledger_db.execute("select LedgerSeq from Ledgers order by LedgerSeq asc limit 1").first.first
+        end
+
+        def last
+          @sql_db.ledger_db.execute("select LedgerSeq from Ledgers order by LedgerSeq desc limit 1").first.first
         end
 
         alias :count :size
@@ -58,13 +66,9 @@ module XRBP
           end
         end
 
-        def last
-          all.last
-        end
-
         # TODO: remove memoization, define first(n), last(n) methods
         def all
-          @all ||= @sql_db.ledger_db.execute("select * from ledgers order by LedgerSeq asc")
+          @all ||= @sql_db.ledger_db.execute("select * from Ledgers order by LedgerSeq asc")
                                     .collect { |row| from_db(row) }
         end
 
