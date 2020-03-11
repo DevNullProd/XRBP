@@ -127,6 +127,17 @@ module XRBP
           connection.rsleep(delay) unless connection.force_quit?
         end
       end
+
+      # Retrieve server info via WebSocket::Connection
+      def server_info(opts={}, &bl)
+        set_opts(opts)
+        connection.cmd(WebSocket::Cmds::ServerInfo.new, &bl)
+      end
+
+      # Retrieve ledgers which this server has
+      def complete_ledgers(opts={})
+        server_info(opts)["result"]["info"]["complete_ledgers"].split("-").collect { |l| l.to_i }
+      end
     end
   end # module Model
 end # module XRBP
