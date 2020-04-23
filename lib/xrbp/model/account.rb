@@ -64,7 +64,7 @@ module XRBP
         # start at last marker
         marker = File.exist?("#{cache}/marker") ?
                    File.read("#{cache}/marker") : nil
-        marker = nil if marker.strip.empty?
+        marker = nil if marker&.strip&.empty?
 
         # load start time, if set
         start = File.exist?("#{cache}/start") ?
@@ -87,14 +87,17 @@ module XRBP
           break if connection.force_quit?
           break unless res[:accounts] && !res[:accounts].empty?
 
+          page = marker || start.strftime("%Y%m%d%H%M%S")
+
           # Cache data
-          cache_file = "#{cache}/#{marker || start.strftime("%Y%m%d%H%M%S")}"
+          cache_file = "#{cache}/#{page}"
           File.write(cache_file, res[:accounts].to_json)
 
           # Emit signal
           res[:accounts].each { |acct|
             break if connection.force_quit?
             connection.emit :account, acct
+            # TODO yield account
           }
 
           break if connection.force_quit?
@@ -105,6 +108,8 @@ module XRBP
           # Store state, eval exit condition
           File.write("#{cache}/marker", marker.to_s)
           finished = !marker
+
+          connection.emit :account_page, page
         end
 
         # Store state for next run
